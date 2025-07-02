@@ -1,0 +1,51 @@
+{
+  "name": "@skalenetwork/bite",
+  "version": "0.4.0",
+  "description": "TS Library to interact with BITE protocol",
+  "homepage": "https://github.com/skalenetwork/bite.ts",
+  "license": "LGPL-3.0-or-later",
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs"
+    }
+  },
+  "scripts": {
+    "build": "yarn clean && tsup --env.NODE_ENV production",
+    "build:dev": "yarn clean && tsup --env.NODE_ENV development",
+    "dev": "tsup --watch",
+    "clean": "rm -rf dist",
+    "lint": "eslint ./src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint ./src --ext .ts --fix",
+    "version": "node -e \"console.log(require('./package.json').version);\""
+  },
+  "keywords": [
+    "SKALE",
+    "blockchain",
+    "BITE",
+    "threshold",
+    "cryptography",
+    "encryption"
+  ],
+  "dependencies": {
+    "@skalenetwork/t-encrypt": "0.4.0-develop.1",
+    "tslog": "^4.9.3"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0",
+    "tsup": "^7.2.0",
+    "ethers": "^6.13.5",
+    "eslint": "^8.45.0",
+    "@typescript-eslint/parser":"^8.33.0",
+    "@typescript-eslint/eslint-plugin": "^8.33.0"
+  }
+}
