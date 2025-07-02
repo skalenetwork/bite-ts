@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Encrypted Transaction</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+      background-color: #f4f4f9;
+      color: #333;
+      max-width: 800px;
+      margin: auto;
+    }
+
+    h1 {
+      text-align: center;
+      color: #222;
+    }
+
+    textarea {
+      width: 100%;
+      height: 100px;
+      padding: 0.75rem;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      resize: vertical;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    button {
+      padding: 0.6rem 1.2rem;
+      font-size: 1rem;
+      margin-right: 0.5rem;
+      border: none;
+      border-radius: 6px;
+      background-color: #4caf50;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.2s ease-in-out;
+    }
+
+    button:disabled {
+      background-color: #aaa;
+      cursor: not-allowed;
+    }
+
+    button:hover:not(:disabled) {
+      background-color: #45a049;
+    }
+
+    #txLink {
+      margin-top: 1.5rem;
+      font-size: 0.95rem;
+      background-color: #e7f5ff;
+      padding: 0.8rem;
+      border-left: 4px solid #2196f3;
+      border-radius: 4px;
+    }
+
+    a {
+      color: #2196f3;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .pending-container {
+      margin-top: 20px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .pending-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .pending-item {
+      border-left: 4px solid #1e90ff;
+      background: #f0f8ff;
+      padding: 12px 16px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      font-size: 14px;
+      line-height: 1.5;
+      word-wrap: break-word; /* <--- important */
+      overflow-wrap: break-word;
+    }
+
+    .pending-item a {
+      word-break: break-word;
+      overflow-wrap: break-word;
+      text-decoration: none;
+      color: #0077cc;
+    }
+
+
+    .pending-item strong {
+      color: #333;
+    }
+
+    .pending-item code {
+      background: rgba(0,0,0,0.04);
+      padding: 2px 4px;
+      border-radius: 4px;
+      font-family: monospace;
+    }
+
+  </style>
+</head>
+<body>
+<h1>BITE Protocol Demo</h1>
+
+<textarea id="message" placeholder="Enter message to encrypt..."></textarea><br>
+
+<div style="margin-bottom: 1rem;">
+  <label for="destinationAddress">Send to Address:</label>
+  <input type="text" id="destinationAddress" placeholder="0x..." style="width: 100%; padding: 8px; margin-top: 5px;">
+</div>
+
+
+
+<!--<button id="connectButton">Pause consensus</button>-->
+<!--<button id="resumeConsensusButton">Resume consensus</button>-->
+
+<button id="sendButton">Send Encrypted Data</button>
+
+
+<div id="pendingQueueContainer" class="pending-container">
+  <h3>Pending Queue</h3>
+  <div id="pendingQueue" class="pending-list"></div>
+</div>
+
+<div class="pending-container" style="margin-top: 50px;">
+  <h3>Decrypted Transactions</h3>
+  <div id="decryptedQueue" class="pending-list">
+    <div class="pending-item" id="decryptedTxContent">No decrypted transactions yet</div>
+  </div>
+</div>
+
+
+
+
+
+<script type="module" src="/src/main.js"></script>
+</body>
+

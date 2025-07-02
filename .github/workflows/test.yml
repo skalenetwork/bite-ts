@@ -1,0 +1,97 @@
+name: Run Tests
+
+on:
+  push:
+    branches-ignore:
+      - develop
+      - beta
+      - stable
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get install jq
+          yarn
+          yarn build
+
+      - name: Run linter
+        run: |
+          yarn lint
+
+      - name: Run sgx container
+        run: |
+          export SGX_WALLET_TAG=1.10.0-develop.7
+          echo "SGX_WALLET_TAG=$SGX_WALLET_TAG" >> $GITHUB_ENV
+          bash ./scripts/run_sgx_container.sh $SGX_WALLET_TAG
+        shell: bash
+      
+      - name: Import ssl certificates
+        run: |
+          bash ./scripts/import_ssl_certificates.sh
+        shell: bash
+      
+      - name: Import keys
+        run: |
+          bash ./scripts/import_sgx_keys.sh
+        shell: bash
+
+      - name: Run skaled container
+        run: |
+          export SKALED_RELEASE=4.1.0-develop.23-bite-relwithdebinfo
+          echo "SKALED_RELEASE=$SKALED_RELEASE" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Run tests
+        env:
+          SKALED_RELEASE: ${{ env.SKALED_RELEASE }}
+        run: |
+          bash ./scripts/run_test.sh $SKALED_RELEASE
+        shell: bash
+      
+      - name: Collect sgxwallet container logs
+        env:
+            SGX_WALLET_TAG: ${{ env.SGX_WALLET_TAG }}
+        if: always()
+        run: |
+          CONTAINER_ID=$(docker ps -a -q --filter "ancestor=skalenetwork/sgxwallet_sim:$SGX_WALLET_TAG")
+          echo "Container ID: $CONTAINER_ID"
+          docker ps -a
+          docker logs $CONTAINER_ID > sgxwallet_logs.txt
+        shell: bash
+      
+      - name: Collect skaled container logs
+        env:
+            SKALED_RELEASE: ${{ env.SKALED_RELEASE }}
+        if: always()
+        run: |
+          CONTAINER_ID=$(docker ps -a -q --filter "ancestor=skalenetwork/schain:$SKALED_RELEASE")
+          echo "Container ID: $CONTAINER_ID"
+          docker ps -a
+          docker logs $CONTAINER_ID > skaled_logs.txt
+        shell: bash
+      
+      - name: Upload sgxwallet logs as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sgxwallet-logs
+          path: sgxwallet_logs.txt
+
+      - name: Upload skaled logs as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: skaled-logs
+          path: skaled_logs.txt

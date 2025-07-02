@@ -1,0 +1,5 @@
+node_modules/
+.idea/
+dist/
+
+scripts/endpoint_by_container/data_dir
