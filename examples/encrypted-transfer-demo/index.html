@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Encrypted Transfer Demo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com">      </script>
+  <style>
+    @keyframes fade-in {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in {
+      animation: fade-in 0.6s ease-out both;
+    }
+  </style>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: '#00FFE1',
+            surface: '#0f0f1a',
+            card: '#1a1a2e',
+            text: '#f5f5f5',
+            accent: '#00FFD1',
+            secondary: '#FF6EC7',
+            highlight: '#7C5FFF',
+            edge: '#1E90FF',
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: '#00FFD1',
+            surface: '#111827',
+            card: '#1f2937',
+            text: '#f9fafb',
+            accent: '#4c86f7',
+          },
+        },
+      },
+    };
+  </script>
+</head>
+<body class="bg-black text-text font-sans">
+<div class="max-w-3xl mx-auto py-16 px-8 space-y-8">
+  <h1 class="text-3xl font-bold text-center flex items-center justify-center gap-2 animate-fade-in">
+    <span>🔐</span> Encrypted Transfer Demo
+  </h1>
+
+
+
+  <!-- Transfer Form -->
+  <div class="bg-gradient-to-br from-surface to-black/80 border border-accent/40 p-8 md:p-10 rounded-2xl shadow-xl ring-1 ring-accent/30 space-y-6">
+    <h2 class="text-2xl font-semibold flex items-center gap-3 mb-4">
+      <span>📤</span> Send Encrypted Transfer
+    </h2>
+    <div class="grid grid-cols-1 gap-4">
+      <input
+              type="text"
+              id="destinationAddress"
+              placeholder="0xRecipient..."
+              class="transition duration-300 ease-in-out focus:ring-2 focus:ring-accent focus:outline-none bg-black text-white placeholder-gray-500 border border-gray-700 rounded-xl px-5 py-3 w-full"
+      />
+      <input
+              type="number"
+              id="amount"
+              placeholder="Amount to transfer"
+              class="bg-black/60 text-text placeholder-gray-400 border border-gray-700 rounded-xl px-5 py-3 w-full"
+      />
+    </div>
+    <button
+            id="sendButton"
+            class="bg-[#4c6ef5] hover:bg-[#3b5bdb] text-white font-semibold px-8 py-3 rounded-xl w-full transition-all duration-300 ease-in-out shadow-md hover:shadow-xl transform hover:-translate-y-0.5"
+    >
+      🔒 Encrypt & Send Transfer
+    </button>
+  </div>
+
+  <!-- Pending Queue -->
+  <div class="bg-gradient-to-br from-surface to-black/80 border border-accent/40 p-6 rounded-2xl shadow-lg ring-1 ring-accent/30 space-y-4">
+    <h2 class="text-xl font-semibold flex items-center gap-2">
+      <span>⏳</span> Pending Encrypted Transactions
+    </h2>
+    <div id="pendingQueue" class="space-y-2 text-sm text-gray-300 mt-4">
+      <div class="bg-gray-700 rounded-lg px-5 py-3">Fetching pending transactions...</div>
+    </div>
+  </div>
+
+  <!-- Decrypted Queue -->
+  <div class="bg-gradient-to-br from-surface to-black/80 border border-accent/40 p-6 rounded-2xl shadow-lg ring-1 ring-accent/30">
+    <h2 class="text-xl font-semibold flex items-center gap-2">
+      <span>✅</span> Executed & Decrypted Transfers
+    </h2>
+    <div id="decryptedQueue" class="space-y-2 text-sm text-green-200 mt-4">
+      <div id="decryptedTxContent" class="bg-green-700/70 rounded-lg px-5 py-3">
+        Waiting for transactions to be mined...
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+node_modules/
+.idea/
+dist/
+
+scripts/endpoint_by_container/data_dir/*
+
+!scripts/endpoint_by_container/data_dir/config.json

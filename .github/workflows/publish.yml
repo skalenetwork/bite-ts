@@ -1,0 +1,67 @@
+name: Publish Package
+
+on:
+  push:
+    branches:
+      - develop
+      - beta
+      - stable
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          registry-url: 'https://registry.npmjs.org/'
+
+      - name: Install dependencies
+        run: yarn
+      - name: Build
+        run: yarn build
+      - name: Set version and branch
+        run: |
+          export BRANCH=${GITHUB_REF##*/}
+          export VERSION=$(npm run --silent version)
+          echo "Branch: $BRANCH"
+          echo "Base version: $VERSION"
+          export VERSION=$(bash ./scripts/calculate_version.sh)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "BRANCH=$BRANCH" >> $GITHUB_ENV
+          echo "Version $VERSION"
+      - name: Publish on npm
+        if: github.ref != 'refs/heads/stable'
+        run: |
+          npm version --no-git-tag-version $VERSION
+          npm publish --access public --tag ${{ env.BRANCH }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Publish on npm (stable)
+        if: github.ref == 'refs/heads/stable'
+        run: |
+          npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Set release
+        run: |
+          if [[ "$BRANCH" == "stable" ]]; then
+            export PRERELEASE=false
+          else
+            export PRERELEASE=true
+          fi
+          echo "PRERELEASE=$PRERELEASE" >> $GITHUB_ENV
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.VERSION }}
+          release_name: ${{ env.VERSION }}
+          draft: false
+          prerelease: ${{ env.PRERELEASE }}
