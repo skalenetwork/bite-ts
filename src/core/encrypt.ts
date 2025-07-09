@@ -54,7 +54,7 @@ export async function encryptTransaction(
         const txTo = validatedTx.to;
         const txData = validatedTx.data;
 
-        // RLP encode data and to fields instead of concatenating
+        // RLP encode data and to fields
         const rlpEncodedData = rlpEncodeTransactionData(txTo, txData);
 
         tx.data = await encryptMessage(rlpEncodedData, endpoint);
@@ -80,7 +80,7 @@ export async function encryptTransactionMockup(tx: Transaction): Promise<Transac
         const txTo = validatedTx.to;
         const txData = validatedTx.data;
 
-        // RLP encode data and to fields instead of concatenating
+        // RLP encode data and to fields
         const rlpEncodedData = rlpEncodeTransactionData(txTo, txData);
 
         tx.data = await encryptMessageMockup(rlpEncodedData);
@@ -112,7 +112,7 @@ export async function encryptMessage(
         const encryptedRawMessage = await encryptRawMessage(data, BLS_PUBLIC_KEY);
         const epochId = 0;
 
-        // RLP encode epochID and encrypted message instead of concatenating
+        // RLP encode epochID and encrypted message
         const rlpEncodedResult = rlpEncodeMessageData(epochId, encryptedRawMessage);
         return `0x${rlpEncodedResult}`;
     } catch (error) {
@@ -140,7 +140,7 @@ export async function encryptMessageMockup(
         const encryptedRawMessage = await encryptRawMessageMockup(data);
         const epochId = 0;
 
-        // RLP encode epochID and encrypted message instead of concatenating
+        // RLP encode epochID and encrypted message
         const rlpEncodedResult = rlpEncodeMessageData(epochId, encryptedRawMessage);
         return `0x${rlpEncodedResult}`;
     } catch (error) {
@@ -191,7 +191,7 @@ function rlpEncodeTransactionData(txTo: string, txData: string): string {
         const toBuffer = Buffer.from(txTo, 'hex');
         const dataBuffer = Buffer.from(txData, 'hex');
         
-        // RLP encode as array [txTo, txData]
+        // RLP encode as array [txData, txTo]
         const rlpEncoded = encode([dataBuffer, toBuffer]);
         
         // Convert back to hex string without 0x prefix
@@ -210,8 +210,10 @@ function rlpEncodeTransactionData(txTo: string, txData: string): string {
  */
 function rlpEncodeMessageData(epochId: number, encryptedMessage: string): string {
     try {
+        // Convert hex string to Buffer for RLP encoding
         const encryptedMessageBuffer = Buffer.from(encryptedMessage, 'hex');
         
+        // RLP encode as list of lists [[epochId, encryptedMessageBuffer]]
         const rlpEncoded = encode([[epochId, encryptedMessageBuffer]]);
         
         // Convert back to hex string without 0x prefix
