@@ -52,7 +52,7 @@ export async function encryptTransaction(
     try {
         const validatedTx = validateAndExtractTransactionFields(tx);
         const txTo = validatedTx.to;
-        const txData = validatedTx.data;
+        let txData = validatedTx.data;
 
         // RLP encode data and to fields instead of concatenating
         const rlpEncodedData = rlpEncodeTransactionData(txTo, txData);
@@ -78,7 +78,7 @@ export async function encryptTransactionMockup(tx: Transaction): Promise<Transac
     try {
         const validatedTx = validateAndExtractTransactionFields(tx);
         const txTo = validatedTx.to;
-        const txData = validatedTx.data;
+        let txData = validatedTx.data;
 
         // RLP encode data and to fields instead of concatenating
         const rlpEncodedData = rlpEncodeTransactionData(txTo, txData);
@@ -212,7 +212,7 @@ function rlpEncodeMessageData(epochId: number, encryptedMessage: string): string
     try {
         const encryptedMessageBuffer = Buffer.from(encryptedMessage, 'hex');
         
-        const rlpEncoded = encode([epochId, encryptedMessageBuffer]);
+        const rlpEncoded = encode([[epochId, encryptedMessageBuffer]]);
         
         // Convert back to hex string without 0x prefix
         return Buffer.from(rlpEncoded).toString('hex');
