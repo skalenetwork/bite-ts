@@ -110,10 +110,10 @@ export async function encryptMessage(
 
         const BLS_PUBLIC_KEY = await getCommonPublicKey(endpoint);
         const encryptedRawMessage = await encryptRawMessage(data, BLS_PUBLIC_KEY);
-        const epochIDHex = utils.intTo8BytesHex(0);
+        const epochId = 0;
 
         // RLP encode epochID and encrypted message instead of concatenating
-        const rlpEncodedResult = rlpEncodeMessageData(epochIDHex, encryptedRawMessage);
+        const rlpEncodedResult = rlpEncodeMessageData(epochId, encryptedRawMessage);
         return `0x${rlpEncodedResult}`;
     } catch (error) {
         logger.error('Error encrypting message:', error);
@@ -138,18 +138,16 @@ export async function encryptMessageMockup(
         }
 
         const encryptedRawMessage = await encryptRawMessageMockup(data);
-        const epochIDHex = utils.intTo8BytesHex(0);
+        const epochId = 0;
 
         // RLP encode epochID and encrypted message instead of concatenating
-        const rlpEncodedResult = rlpEncodeMessageData(epochIDHex, encryptedRawMessage);
+        const rlpEncodedResult = rlpEncodeMessageData(epochId, encryptedRawMessage);
         return `0x${rlpEncodedResult}`;
     } catch (error) {
         logger.error('Error encrypting message:', error);
         throw error;
     }
 }
-
-
 
 /**
  * Validates a transaction object for encryption and extracts the fields to be encrypted.
@@ -182,43 +180,44 @@ function validateAndExtractTransactionFields(tx: Transaction): Transaction {
 }
 
 /**
- * Generic RLP encoding function for hex string arrays
- * @param {string[]} hexStrings - Array of hex strings (without 0x prefix) to encode
- * @param {string} context - Context for error messages (e.g., 'transaction data', 'message data')
- * @returns {string} RLP encoded data as hex string (without 0x prefix)
- */
-function rlpEncodeHexArray(hexStrings: string[], context: string): string {
-    try {
-        // Convert hex strings to Buffer for RLP encoding
-        const buffers = hexStrings.map(hexStr => Buffer.from(hexStr, 'hex'));
-        
-        // RLP encode as array
-        const rlpEncoded = encode(buffers);
-        
-        // Convert back to hex string without 0x prefix
-        return Buffer.from(rlpEncoded).toString('hex');
-    } catch (error) {
-        logger.error(`Error RLP encoding ${context}:`, error);
-        throw new Error(`Failed to RLP encode ${context}`);
-    }
-}
-
-/**
  * RLP encodes transaction data and to address
  * @param {string} txTo - The transaction to address as hex string (without 0x prefix)
  * @param {string} txData - The transaction data as hex string (without 0x prefix)
  * @returns {string} RLP encoded data as hex string (without 0x prefix)
  */
 function rlpEncodeTransactionData(txTo: string, txData: string): string {
-    return rlpEncodeHexArray([txData, txTo], 'transaction data');
+    try {
+        // Convert hex strings to Buffer for RLP encoding
+        const toBuffer = Buffer.from(txTo, 'hex');
+        const dataBuffer = Buffer.from(txData, 'hex');
+        
+        // RLP encode as array [txTo, txData]
+        const rlpEncoded = encode([dataBuffer, toBuffer]);
+        
+        // Convert back to hex string without 0x prefix
+        return Buffer.from(rlpEncoded).toString('hex');
+    } catch (error) {
+        logger.error('Error RLP encoding transaction data:', error);
+        throw new Error('Failed to RLP encode transaction data');
+    }
 }
 
 /**
- * RLP encodes epoch ID and encrypted message
- * @param {string} epochIDHex - The epoch ID as hex string (without 0x prefix)
+ * RLP encodes epoch ID and encrypted message as a list of lists
+ * @param {number} epochId - The epoch ID as an integer
  * @param {string} encryptedMessage - The encrypted message as hex string (without 0x prefix)
  * @returns {string} RLP encoded data as hex string (without 0x prefix)
  */
-function rlpEncodeMessageData(epochIDHex: string, encryptedMessage: string): string {
-    return rlpEncodeHexArray([epochIDHex, encryptedMessage], 'message data');
+function rlpEncodeMessageData(epochId: number, encryptedMessage: string): string {
+    try {
+        const encryptedMessageBuffer = Buffer.from(encryptedMessage, 'hex');
+        
+        const rlpEncoded = encode([epochId, encryptedMessageBuffer]);
+        
+        // Convert back to hex string without 0x prefix
+        return Buffer.from(rlpEncoded).toString('hex');
+    } catch (error) {
+        logger.error('Error RLP encoding message data:', error);
+        throw new Error('Failed to RLP encode message data');
+    }
 }
