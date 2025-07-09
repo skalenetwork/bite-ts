@@ -52,7 +52,7 @@ export async function encryptTransaction(
     try {
         const validatedTx = validateAndExtractTransactionFields(tx);
         const txTo = validatedTx.to;
-        let txData = validatedTx.data;
+        const txData = validatedTx.data;
 
         // RLP encode data and to fields instead of concatenating
         const rlpEncodedData = rlpEncodeTransactionData(txTo, txData);
@@ -78,7 +78,7 @@ export async function encryptTransactionMockup(tx: Transaction): Promise<Transac
     try {
         const validatedTx = validateAndExtractTransactionFields(tx);
         const txTo = validatedTx.to;
-        let txData = validatedTx.data;
+        const txData = validatedTx.data;
 
         // RLP encode data and to fields instead of concatenating
         const rlpEncodedData = rlpEncodeTransactionData(txTo, txData);
