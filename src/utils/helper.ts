@@ -21,17 +21,8 @@
  * @copyright SKALE Labs 2025-Present
  */
 
-import * as constants from "./constants";
-
 export function remove0xPrefixIfNeeded(str: string): string {
     return str.startsWith('0x') ? str.slice(2) : str;
-}
-
-export function intTo8BytesHex(num: number | bigint): string {
-    if (typeof num !== 'number' && typeof num !== 'bigint') {
-        throw new TypeError('Input must be a number or bigint');
-    }
-    return BigInt(num).toString(16).padStart(2 * constants.EPOCH_ID_SIZE_BYTES, '0');
 }
 
 export function validateUrl(url: string): void {
