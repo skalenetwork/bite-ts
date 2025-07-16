@@ -79,14 +79,19 @@ export async function getDecryptedTransactionData(
     }
 }
 
+interface CommonPublicKeyResponse {
+    commonBLSPublicKey: string;
+    epochId: number;
+}
+
 /**
  * Requests the common public key via JSON-RPC.
  *
  * @param endpoint - BITE URL provider.
- * @returns A 256-character hexadecimal public key string.
+ * @returns An object containing the BLS public key and epoch ID.
  * @throws If the response is invalid or the key format is incorrect.
  */
-export async function getCommonPublicKey(endpoint: string): Promise<string> {
+export async function getCommonPublicKey(endpoint: string): Promise<CommonPublicKeyResponse> {
     try {
         const requestBody: JsonRpcRequest = {
             jsonrpc: '2.0',
@@ -95,14 +100,22 @@ export async function getCommonPublicKey(endpoint: string): Promise<string> {
             id: 1,
         };
         
-        const result = await sendRpcRequest<string>(endpoint, requestBody);
+        const result = await sendRpcRequest<CommonPublicKeyResponse>(endpoint, requestBody);
 
-        if (typeof result !== 'string') {
-            throw new Error('Result is not a string');
+        if (typeof result !== 'object' || result === null) {
+            throw new Error('Result is not an object');
         }
 
-        if (!/^[0-9a-fA-F]{256}$/.test(result)) {
-            throw new Error('Result is not a valid 256-character hexadecimal string');
+        if (typeof result.commonBLSPublicKey !== 'string') {
+            throw new Error('commonBLSPublicKey is not a string');
+        }
+
+        if (typeof result.epochId !== 'number') {
+            throw new Error('epochId is not a number');
+        }
+
+        if (!/^[0-9a-fA-F]{256}$/.test(result.commonBLSPublicKey)) {
+            throw new Error('commonBLSPublicKey is not a valid 256-character hexadecimal string');
         }
 
         return result;
