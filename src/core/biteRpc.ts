@@ -79,7 +79,7 @@ export async function getDecryptedTransactionData(
     }
 }
 
-interface CommonPublicKeyResponse {
+export interface CommonPublicKeyResponse {
     commonBLSPublicKey: string;
     epochId: number;
 }
