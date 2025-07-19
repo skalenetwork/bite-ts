@@ -85,7 +85,7 @@ Retrieves decrypted transaction data from the configured BITE provider.
 
 Fetches the common BLS public key from the configured BITE provider.
 
-- **Returns**: `Promise` – A 256-character hex string representing the common public key.
+- **Returns**: `Promise` – A JSON object containing `commonBLSPublicKey` as a 256-character hex string and `epochId` as an integer number.
 
 ## Run test
 

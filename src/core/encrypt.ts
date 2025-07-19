@@ -108,9 +108,9 @@ export async function encryptMessage(
         const data = utils.remove0xPrefixIfNeeded(message);
         utils.validateHexString(data);
 
-        const BLS_PUBLIC_KEY = await getCommonPublicKey(endpoint);
-        const encryptedRawMessage = await encryptRawMessage(data, BLS_PUBLIC_KEY);
-        const epochId = 0;
+        const publicKeyResponse = await getCommonPublicKey(endpoint);
+        const encryptedRawMessage = await encryptRawMessage(data, publicKeyResponse.commonBLSPublicKey);
+        const epochId = publicKeyResponse.epochId;
 
         // RLP encode epochID and encrypted message
         const rlpEncodedResult = rlpEncodeMessageData(epochId, encryptedRawMessage);
