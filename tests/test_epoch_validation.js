@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const { BITE } = require('./dist/index.js');
+const { BITE } = require('..');
 const { encode } = require('@ethereumjs/rlp');
 const ethers = require('ethers');
 
