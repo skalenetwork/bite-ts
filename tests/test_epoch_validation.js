@@ -98,8 +98,8 @@ async function testEpochValidation(providerUrl, chainID, privateKey) {
         // Get the current epoch info
         console.log('📡 Getting current epoch info...');
         const publicKeyResponse = await bite.getCommonPublicKey();
-        const currentEpochId = publicKeyResponse.epochId;
-        const blsPublicKey = publicKeyResponse.commonBLSPublicKey;
+        const currentEpochId = publicKeyResponse[0].epochId;
+        const blsPublicKey = publicKeyResponse[0].commonBLSPublicKey;
         console.log(`Current Epoch ID: ${currentEpochId}`);
         console.log(`BLS Public Key: ${blsPublicKey.slice(0, 20)}...`);
         console.log();

@@ -88,10 +88,10 @@ export interface CommonPublicKeyResponse {
  * Requests the common public key via JSON-RPC.
  *
  * @param endpoint - BITE URL provider.
- * @returns An object containing the BLS public key and epoch ID.
+ * @returns An array of objects containing the BLS public key and epoch ID.
  * @throws If the response is invalid or the key format is incorrect.
  */
-export async function getCommonPublicKey(endpoint: string): Promise<CommonPublicKeyResponse> {
+export async function getCommonPublicKey(endpoint: string): Promise<CommonPublicKeyResponse[]> {
     try {
         const requestBody: JsonRpcRequest = {
             jsonrpc: '2.0',
@@ -100,22 +100,33 @@ export async function getCommonPublicKey(endpoint: string): Promise<CommonPublic
             id: 1,
         };
         
-        const result = await sendRpcRequest<CommonPublicKeyResponse>(endpoint, requestBody);
+        const result = await sendRpcRequest<CommonPublicKeyResponse[]>(endpoint, requestBody);
 
-        if (typeof result !== 'object' || result === null) {
-            throw new Error('Result is not an object');
+        if (!Array.isArray(result)) {
+            throw new Error('Result is not an array');
         }
 
-        if (typeof result.commonBLSPublicKey !== 'string') {
-            throw new Error('commonBLSPublicKey is not a string');
+        if (result.length === 0 || result.length > 2) {
+            throw new Error(`Expected array of size 1 or 2, got ${result.length}`);
         }
 
-        if (typeof result.epochId !== 'number') {
-            throw new Error('epochId is not a number');
-        }
+        // Validate each element in the array
+        for (const item of result) {
+            if (typeof item !== 'object' || item === null) {
+                throw new Error('Array element is not an object');
+            }
 
-        if (!/^[0-9a-fA-F]{256}$/.test(result.commonBLSPublicKey)) {
-            throw new Error('commonBLSPublicKey is not a valid 256-character hexadecimal string');
+            if (typeof item.commonBLSPublicKey !== 'string') {
+                throw new Error('commonBLSPublicKey is not a string');
+            }
+
+            if (typeof item.epochId !== 'number') {
+                throw new Error('epochId is not a number');
+            }
+
+            if (!/^[0-9a-fA-F]{256}$/.test(item.commonBLSPublicKey)) {
+                throw new Error('commonBLSPublicKey is not a valid 256-character hexadecimal string');
+            }
         }
 
         return result;
