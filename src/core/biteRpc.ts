@@ -85,17 +85,17 @@ export interface CommonPublicKeyResponse {
 }
 
 /**
- * Requests the common public key via JSON-RPC.
+ * Requests the committees info via JSON-RPC.
  *
  * @param endpoint - BITE URL provider.
  * @returns An array of objects containing the BLS public key and epoch ID.
  * @throws If the response is invalid or the key format is incorrect.
  */
-export async function getCommonPublicKey(endpoint: string): Promise<CommonPublicKeyResponse[]> {
+export async function getCommitteesInfo(endpoint: string): Promise<CommonPublicKeyResponse[]> {
     try {
         const requestBody: JsonRpcRequest = {
             jsonrpc: '2.0',
-            method: 'bite_getCommonPublicKey',
+            method: 'bite_getCommitteesInfo',
             params: [],
             id: 1,
         };

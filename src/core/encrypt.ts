@@ -26,7 +26,7 @@ import {
     encryptMessageMockup as encryptRawMessageMockup
 } from '@skalenetwork/t-encrypt';
 import { encode } from '@ethereumjs/rlp';
-import {getCommonPublicKey} from './biteRpc';
+import {getCommitteesInfo} from './biteRpc';
 import {logger} from "../utils/logger";
 import * as utils from '../utils/helper';
 import * as constants from '../utils/constants';
@@ -108,7 +108,7 @@ export async function encryptMessage(
         const data = utils.remove0xPrefixIfNeeded(message);
         utils.validateHexString(data);
 
-        const publicKeyResponses = await getCommonPublicKey(endpoint);
+        const publicKeyResponses = await getCommitteesInfo(endpoint);
 
         if (publicKeyResponses.length === 1) {
             const publicKeyResponse = publicKeyResponses[0];
