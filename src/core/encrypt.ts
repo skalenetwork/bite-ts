@@ -23,6 +23,7 @@
 
 import {
     encryptMessage as encryptRawMessage,
+    encryptMessageDualKey as encryptRawMessageDualKey,
     encryptMessageMockup as encryptRawMessageMockup
 } from '@skalenetwork/t-encrypt';
 import { encode } from '@ethereumjs/rlp';
@@ -116,18 +117,13 @@ export async function encryptMessage(
             const epochId = publicKeyResponse.epochId;
 
             // RLP encode epochID and encrypted message
-            const rlpEncodedResult = rlpEncodeMessageData([[epochId, encryptedRawMessage]]);
+            const rlpEncodedResult = rlpEncodeMessageData([epochId, Buffer.from(encryptedRawMessage, 'hex')]);
             return `0x${rlpEncodedResult}`;
         } else {
-            const encryptedMessages: Array<[number, string]> = [];
-            
-            for (const keyResponse of publicKeyResponses) {
-                const encryptedRawMessage = await encryptRawMessage(data, keyResponse.commonBLSPublicKey);
-                encryptedMessages.push([keyResponse.epochId, encryptedRawMessage]);
-            }
+            const encryptedRawMessage = await encryptRawMessageDualKey(data, publicKeyResponses[0].commonBLSPublicKey, publicKeyResponses[1].commonBLSPublicKey);
 
             // RLP encode array of [epochId, encryptedMessage] pairs
-            const rlpEncodedResult = rlpEncodeMessageData(encryptedMessages);
+            const rlpEncodedResult = rlpEncodeMessageData([publicKeyResponses[0].epochId, publicKeyResponses[1].epochId, Buffer.from(encryptedRawMessage, 'hex')]);
             return `0x${rlpEncodedResult}`;
         }
     } catch (error) {
@@ -156,7 +152,7 @@ export async function encryptMessageMockup(
         const epochId = 0;
 
         // RLP encode epochID and encrypted message
-        const rlpEncodedResult = rlpEncodeMessageData([[epochId, encryptedRawMessage]]);
+        const rlpEncodedResult = rlpEncodeMessageData([epochId, Buffer.from(encryptedRawMessage, 'hex')]);
         return `0x${rlpEncodedResult}`;
     } catch (error) {
         logger.error('Error encrypting message:', error);
@@ -218,20 +214,14 @@ function rlpEncodeTransactionData(txTo: string, txData: string): string {
 }
 
 /**
- * RLP encodes epoch ID and encrypted message pairs
- * @param {Array<[number, string]>} epochMessagePairs - Array of [epochId, encryptedMessage] pairs
+ * RLP encodes any array data
+ * @param {any[]} data - Array of data to RLP encode
  * @returns {string} RLP encoded data as hex string (without 0x prefix)
  */
-function rlpEncodeMessageData(epochMessagePairs: Array<[number, string]>): string {
+function rlpEncodeMessageData(data: any[]): string {
     try {
-        // Convert each pair to [epochId, encryptedMessageBuffer]
-        const encodedPairs = epochMessagePairs.map(([epochId, encryptedMessage]) => {
-            const encryptedMessageBuffer = Buffer.from(encryptedMessage, 'hex');
-            return [epochId, encryptedMessageBuffer];
-        });
-        
-        // RLP encode the array of pairs
-        const rlpEncoded = encode(encodedPairs);
+        // RLP encode the array
+        const rlpEncoded = encode(data);
         
         // Convert back to hex string without 0x prefix
         return Buffer.from(rlpEncoded).toString('hex');
