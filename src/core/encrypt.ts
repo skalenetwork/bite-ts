@@ -114,16 +114,15 @@ export async function encryptMessage(
         if (publicKeyResponses.length === 1) {
             const publicKeyResponse = publicKeyResponses[0];
             const encryptedRawMessage = await encryptRawMessage(data, publicKeyResponse.commonBLSPublicKey);
-            const epochId = publicKeyResponse.epochId;
 
             // RLP encode epochID and encrypted message
-            const rlpEncodedResult = rlpEncodeMessageData([epochId, Buffer.from(encryptedRawMessage, 'hex')]);
+            const rlpEncodedResult = rlpEncodeMessageData([publicKeyResponse.epochId, Buffer.from(encryptedRawMessage, 'hex')]);
             return `0x${rlpEncodedResult}`;
         } else {
             const encryptedRawMessage = await encryptRawMessageDualKey(data, publicKeyResponses[0].commonBLSPublicKey, publicKeyResponses[1].commonBLSPublicKey);
 
-            // RLP encode array of [epochId, encryptedMessage] pairs
-            const rlpEncodedResult = rlpEncodeMessageData([publicKeyResponses[0].epochId, publicKeyResponses[1].epochId, Buffer.from(encryptedRawMessage, 'hex')]);
+            // RLP encode epochID and encrypted message
+            const rlpEncodedResult = rlpEncodeMessageData([publicKeyResponses[0].epochId, Buffer.from(encryptedRawMessage, 'hex')]);
             return `0x${rlpEncodedResult}`;
         }
     } catch (error) {
@@ -214,11 +213,11 @@ function rlpEncodeTransactionData(txTo: string, txData: string): string {
 }
 
 /**
- * RLP encodes any array data
- * @param {any[]} data - Array of data to RLP encode
+ * RLP encodes array of epochId and encrypted message
+ * @param {(number | Buffer | (number | Buffer)[])[]} data - Array of data to RLP encode
  * @returns {string} RLP encoded data as hex string (without 0x prefix)
  */
-function rlpEncodeMessageData(data: any[]): string {
+function rlpEncodeMessageData(data: (number | Buffer | (number | Buffer)[])[]): string {
     try {
         // RLP encode the array
         const rlpEncoded = encode(data);

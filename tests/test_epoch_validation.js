@@ -73,7 +73,7 @@ async function createForgedTransaction(transaction, forgedEpochId, publicKey) {
         
         // RLP encode with forged epochId (same structure as real encrypt function)
         const encryptedMessageBuffer = Buffer.from(encryptedRawMessage, 'hex');
-        const forgedRlpEncoded = encode([[forgedEpochId, encryptedMessageBuffer]]);
+        const forgedRlpEncoded = encode([forgedEpochId, encryptedMessageBuffer]);
         
         return '0x' + Buffer.from(forgedRlpEncoded).toString('hex');
     } catch (error) {
