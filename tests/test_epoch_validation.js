@@ -73,7 +73,7 @@ async function createForgedTransaction(transaction, forgedEpochId, publicKey) {
         
         // RLP encode with forged epochId (same structure as real encrypt function)
         const encryptedMessageBuffer = Buffer.from(encryptedRawMessage, 'hex');
-        const forgedRlpEncoded = encode([[forgedEpochId, encryptedMessageBuffer]]);
+        const forgedRlpEncoded = encode([forgedEpochId, encryptedMessageBuffer]);
         
         return '0x' + Buffer.from(forgedRlpEncoded).toString('hex');
     } catch (error) {
@@ -97,9 +97,9 @@ async function testEpochValidation(providerUrl, chainID, privateKey) {
     try {
         // Get the current epoch info
         console.log('📡 Getting current epoch info...');
-        const publicKeyResponse = await bite.getCommonPublicKey();
-        const currentEpochId = publicKeyResponse.epochId;
-        const blsPublicKey = publicKeyResponse.commonBLSPublicKey;
+        const publicKeyResponse = await bite.getCommitteesInfo();
+        const currentEpochId = publicKeyResponse[0].epochId;
+        const blsPublicKey = publicKeyResponse[0].commonBLSPublicKey;
         console.log(`Current Epoch ID: ${currentEpochId}`);
         console.log(`BLS Public Key: ${blsPublicKey.slice(0, 20)}...`);
         console.log();

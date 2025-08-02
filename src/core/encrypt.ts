@@ -23,10 +23,11 @@
 
 import {
     encryptMessage as encryptRawMessage,
+    encryptMessageDualKey as encryptRawMessageDualKey,
     encryptMessageMockup as encryptRawMessageMockup
 } from '@skalenetwork/t-encrypt';
 import { encode } from '@ethereumjs/rlp';
-import {getCommonPublicKey} from './biteRpc';
+import {getCommitteesInfo} from './biteRpc';
 import {logger} from "../utils/logger";
 import * as utils from '../utils/helper';
 import * as constants from '../utils/constants';
@@ -94,7 +95,7 @@ export async function encryptTransactionMockup(tx: Transaction): Promise<Transac
 }
 
 /**
- * Encrypts a raw hex-encoded message using the real BLS key.
+ * Encrypts a raw hex-encoded message using the real BLS key(s).
  *
  * @param {string} message - The message to encrypt, as a hex string (with or without 0x prefix).
  * @param {string} endpoint - BITE URL provider.
@@ -108,13 +109,22 @@ export async function encryptMessage(
         const data = utils.remove0xPrefixIfNeeded(message);
         utils.validateHexString(data);
 
-        const publicKeyResponse = await getCommonPublicKey(endpoint);
-        const encryptedRawMessage = await encryptRawMessage(data, publicKeyResponse.commonBLSPublicKey);
-        const epochId = publicKeyResponse.epochId;
+        const publicKeyResponses = await getCommitteesInfo(endpoint);
 
-        // RLP encode epochID and encrypted message
-        const rlpEncodedResult = rlpEncodeMessageData(epochId, encryptedRawMessage);
-        return `0x${rlpEncodedResult}`;
+        if (publicKeyResponses.length === 1) {
+            const publicKeyResponse = publicKeyResponses[0];
+            const encryptedRawMessage = await encryptRawMessage(data, publicKeyResponse.commonBLSPublicKey);
+
+            // RLP encode epochID and encrypted message
+            const rlpEncodedResult = rlpEncodeMessageData([publicKeyResponse.epochId, Buffer.from(encryptedRawMessage, 'hex')]);
+            return `0x${rlpEncodedResult}`;
+        } else {
+            const encryptedRawMessage = await encryptRawMessageDualKey(data, publicKeyResponses[0].commonBLSPublicKey, publicKeyResponses[1].commonBLSPublicKey);
+
+            // RLP encode epochID and encrypted message
+            const rlpEncodedResult = rlpEncodeMessageData([publicKeyResponses[0].epochId, Buffer.from(encryptedRawMessage, 'hex')]);
+            return `0x${rlpEncodedResult}`;
+        }
     } catch (error) {
         logger.error('Error encrypting message:', error);
         throw error;
@@ -141,7 +151,7 @@ export async function encryptMessageMockup(
         const epochId = 0;
 
         // RLP encode epochID and encrypted message
-        const rlpEncodedResult = rlpEncodeMessageData(epochId, encryptedRawMessage);
+        const rlpEncodedResult = rlpEncodeMessageData([epochId, Buffer.from(encryptedRawMessage, 'hex')]);
         return `0x${rlpEncodedResult}`;
     } catch (error) {
         logger.error('Error encrypting message:', error);
@@ -203,18 +213,14 @@ function rlpEncodeTransactionData(txTo: string, txData: string): string {
 }
 
 /**
- * RLP encodes epoch ID and encrypted message as a list of lists
- * @param {number} epochId - The epoch ID as an integer
- * @param {string} encryptedMessage - The encrypted message as hex string (without 0x prefix)
+ * RLP encodes array of epochId and encrypted message
+ * @param {(number | Buffer | (number | Buffer)[])[]} data - Array of data to RLP encode
  * @returns {string} RLP encoded data as hex string (without 0x prefix)
  */
-function rlpEncodeMessageData(epochId: number, encryptedMessage: string): string {
+function rlpEncodeMessageData(data: (number | Buffer | (number | Buffer)[])[]): string {
     try {
-        // Convert hex string to Buffer for RLP encoding
-        const encryptedMessageBuffer = Buffer.from(encryptedMessage, 'hex');
-        
-        // RLP encode as list of lists [[epochId, encryptedMessageBuffer]]
-        const rlpEncoded = encode([[epochId, encryptedMessageBuffer]]);
+        // RLP encode the array
+        const rlpEncoded = encode(data);
         
         // Convert back to hex string without 0x prefix
         return Buffer.from(rlpEncoded).toString('hex');
