@@ -60,6 +60,24 @@ jobs:
           bash ./scripts/run_test.sh $SKALED_RELEASE
         shell: bash
       
+      - name: Stop containers
+        if: always()
+        run: |
+          # Stop sgxwallet container
+          SGX_CONTAINER_ID=$(docker ps -q --filter "ancestor=skalenetwork/sgxwallet_sim:${{ env.SGX_WALLET_TAG }}")
+          if [ ! -z "$SGX_CONTAINER_ID" ]; then
+            echo "Stopping sgxwallet container: $SGX_CONTAINER_ID"
+            docker stop $SGX_CONTAINER_ID
+          fi
+          
+          # Stop skaled container
+          SKALED_CONTAINER_ID=$(docker ps -q --filter "ancestor=skalenetwork/schain:${{ env.SKALED_RELEASE }}")
+          if [ ! -z "$SKALED_CONTAINER_ID" ]; then
+            echo "Stopping skaled container: $SKALED_CONTAINER_ID"
+            docker stop -t 270 $SKALED_CONTAINER_ID
+          fi
+        shell: bash
+      
       - name: Collect sgxwallet container logs
         env:
             SGX_WALLET_TAG: ${{ env.SGX_WALLET_TAG }}
@@ -68,7 +86,7 @@ jobs:
           CONTAINER_ID=$(docker ps -a -q --filter "ancestor=skalenetwork/sgxwallet_sim:$SGX_WALLET_TAG")
           echo "Container ID: $CONTAINER_ID"
           docker ps -a
-          docker logs $CONTAINER_ID > sgxwallet_logs.txt
+          docker logs --details --timestamps --tail=all $CONTAINER_ID > sgxwallet_logs.txt 2>&1
         shell: bash
       
       - name: Collect skaled container logs
@@ -79,7 +97,7 @@ jobs:
           CONTAINER_ID=$(docker ps -a -q --filter "ancestor=skalenetwork/schain:$SKALED_RELEASE")
           echo "Container ID: $CONTAINER_ID"
           docker ps -a
-          docker logs $CONTAINER_ID > skaled_logs.txt
+          docker logs --details --timestamps --tail=all $CONTAINER_ID > skaled_logs.txt 2>&1
         shell: bash
       
       - name: Upload sgxwallet logs as artifact
