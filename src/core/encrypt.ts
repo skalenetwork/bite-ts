@@ -50,22 +50,23 @@ export async function encryptTransaction(
     endpoint: string
 ): Promise<Transaction> {
     try {
-        const validatedTx = validateAndExtractTransactionFields(tx);
+        const txCopy: Transaction = { ...tx };
+        const validatedTx = validateAndExtractTransactionFields(txCopy);
         const txTo = validatedTx.to;
         let txData = validatedTx.data;
 
         // append 'to' field to end of data
         txData += txTo;
 
-        tx.data = await encryptMessage(txData, endpoint);
-        tx.to = constants.BITE_ADDRESS;
+        txCopy.data = await encryptMessage(txData, endpoint);
+        txCopy.to = constants.BITE_ADDRESS;
 
         // Set default gasLimit if not set
-        if (!tx.gasLimit) {
-            tx.gasLimit = constants.DEFAULT_GAS_LIMIT;
+        if (!txCopy.gasLimit) {
+            txCopy.gasLimit = constants.DEFAULT_GAS_LIMIT;
         }
 
-        return tx;
+        return txCopy;
     } catch (error) {
         logger.error('Error encrypting transaction:', error);
         throw error;
@@ -81,22 +82,23 @@ export async function encryptTransaction(
  */
 export async function encryptTransactionMockup(tx: Transaction): Promise<Transaction> {
     try {
-        const validatedTx = validateAndExtractTransactionFields(tx);
+        const txCopy: Transaction = { ...tx };
+        const validatedTx = validateAndExtractTransactionFields(txCopy);
         const txTo = validatedTx.to;
         let txData = validatedTx.data;
 
         // append 'to' field to end of data
         txData += txTo;
 
-        tx.data = await encryptMessageMockup(txData);
-        tx.to = constants.BITE_ADDRESS;
+        txCopy.data = await encryptMessageMockup(txData);
+        txCopy.to = constants.BITE_ADDRESS;
 
         // Set default gasLimit if not set
-        if (!tx.gasLimit) {
-            tx.gasLimit = constants.DEFAULT_GAS_LIMIT;
+        if (!txCopy.gasLimit) {
+            txCopy.gasLimit = constants.DEFAULT_GAS_LIMIT;
         }
 
-        return tx;
+        return txCopy;
     } catch (error) {
         logger.error('Error encrypting transaction (mockup):', error);
         throw error;
