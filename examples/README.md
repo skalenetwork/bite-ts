@@ -9,7 +9,7 @@ Create `.env` file under `message-encrypt-demo` directory.
 VITE_EXPLORER_URL=
 VITE_SCHAIN_ENDPOINT=
 ```
-Run `npm i && npm run dev`.
+Run `yarn && yarn dev`.
 
 ## Encrypted Transfer Demo
 
@@ -68,5 +68,5 @@ VITE_TRANSFER_CONTRACT=
 
 Install dependencies and run the project locally:
 ```
-npm install && npm run build && npm run dev
+yarn && yarn build && yarn dev
 ```
