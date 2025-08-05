@@ -61,7 +61,7 @@ export async function encryptTransaction(
         tx.to = constants.BITE_ADDRESS;
 
         // Set default gasLimit if not set
-        if ( !tx.gasLimit ) {
+        if (!tx.gasLimit) {
             tx.gasLimit = constants.DEFAULT_GAS_LIMIT;
         }
 
@@ -92,7 +92,7 @@ export async function encryptTransactionMockup(tx: Transaction): Promise<Transac
         tx.to = constants.BITE_ADDRESS;
 
         // Set default gasLimit if not set
-        if ( !tx.gasLimit ) {
+        if (!tx.gasLimit) {
             tx.gasLimit = constants.DEFAULT_GAS_LIMIT;
         }
 

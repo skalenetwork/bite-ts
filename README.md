@@ -11,6 +11,11 @@ npm i @skalenetwork/bite
 ```
 
 ## Usage
+
+> ⚠️ **Warning**  
+> When passing a transaction to `bite.ts`, it is highly recommended to include a gasLimit field.
+If the gasLimit is omitted, `bite.ts` will automatically set it to **300000**
+
 Here is an example of how to use the library to encrypt transaction data:
 
 ```javascript
