@@ -1,0 +1,20 @@
+{
+  "name": "encrypted-transfer-demo",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^6.3.1",
+    "vite-plugin-static-copy": "^2.3.0"
+  },
+  "dependencies": {
+    "@skalenetwork/bite": "file:../..",
+    "dotenv": "^16.5.0",
+    "ethers": "^6.13.5"
+  }
+}

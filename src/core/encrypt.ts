@@ -34,6 +34,7 @@ import * as constants from '../utils/constants';
 export interface Transaction {
     to: string;
     data: string;
+    gasLimit?: string;
 }
 
 /**
@@ -58,6 +59,11 @@ export async function encryptTransaction(
 
         tx.data = await encryptMessage(txData, endpoint);
         tx.to = constants.BITE_ADDRESS;
+
+        // Set default gasLimit if not set
+        if (!tx.gasLimit) {
+            tx.gasLimit = constants.DEFAULT_GAS_LIMIT;
+        }
 
         return tx;
     } catch (error) {
@@ -84,6 +90,11 @@ export async function encryptTransactionMockup(tx: Transaction): Promise<Transac
 
         tx.data = await encryptMessageMockup(txData);
         tx.to = constants.BITE_ADDRESS;
+
+        // Set default gasLimit if not set
+        if (!tx.gasLimit) {
+            tx.gasLimit = constants.DEFAULT_GAS_LIMIT;
+        }
 
         return tx;
     } catch (error) {
