@@ -16,6 +16,7 @@ async function runSample( providerUrl, chainID, INSECURE_ETH_PRIVATE_KEY ) {
     ethersTransaction.gasLimit = 50000;
     ethersTransaction.gasPrice = BigInt(50000000000);
 
+
     // Create a regular transaction object
     const transaction = {
         to: originalToAddress,
@@ -35,12 +36,13 @@ async function runSample( providerUrl, chainID, INSECURE_ETH_PRIVATE_KEY ) {
         const encryptedEthersTx = await bite.encryptTransaction(ethersTransaction);
         console.log("Encrypted Ethers Transaction:", encryptedEthersTx.data);
 
+
         // Send the encrypted transaction using ethers
         const provider = new ethers.JsonRpcProvider(providerUrl);
         const signer = new ethers.Wallet(INSECURE_ETH_PRIVATE_KEY, provider);
 
         const txResponse = await signer.sendTransaction({
-            to: ethersTransaction.to,
+            to: encryptedEthersTx.to,
             value: ethersTransaction.value,
             gasLimit: ethersTransaction.gasLimit,
             gasPrice: ethersTransaction.gasPrice,

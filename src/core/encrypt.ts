@@ -58,10 +58,13 @@ export async function encryptTransaction(
         // RLP encode data and to fields
         const rlpEncodedData = rlpEncodeTransactionData(txTo, txData);
 
-        tx.data = await encryptMessage(rlpEncodedData, endpoint);
-        tx.to = constants.BITE_ADDRESS;
+        const encryptedData = await encryptMessage(rlpEncodedData, endpoint);
 
-        return tx;
+        return {
+            ...tx,
+            data: encryptedData,
+            to: constants.BITE_ADDRESS
+        };
     } catch (error) {
         logger.error('Error encrypting transaction:', error);
         throw error;
@@ -84,10 +87,13 @@ export async function encryptTransactionMockup(tx: Transaction): Promise<Transac
         // RLP encode data and to fields
         const rlpEncodedData = rlpEncodeTransactionData(txTo, txData);
 
-        tx.data = await encryptMessageMockup(rlpEncodedData);
-        tx.to = constants.BITE_ADDRESS;
+        const encryptedData = await encryptMessageMockup(rlpEncodedData);
 
-        return tx;
+        return {
+            ...tx,
+            data: encryptedData,
+            to: constants.BITE_ADDRESS
+        };
     } catch (error) {
         logger.error('Error encrypting transaction (mockup):', error);
         throw error;
