@@ -355,10 +355,10 @@
   resolved "https://registry.yarnpkg.com/@rollup/rollup-win32-x64-msvc/-/rollup-win32-x64-msvc-4.41.1.tgz#848f99b0d9936d92221bb6070baeff4db6947a30"
   integrity sha512-Wq2zpapRYLfi4aKxf2Xff0tN+7slj2d4R87WEzqw7ZLsVvO5zwYCIuEGSZYiK41+GlwUo1HiR+GdkLEJnCKTCw==
 
-"@skalenetwork/t-encrypt@0.4.0-develop.1":
-  version "0.4.0-develop.1"
-  resolved "https://registry.yarnpkg.com/@skalenetwork/t-encrypt/-/t-encrypt-0.4.0-develop.1.tgz#98f70df7a0eec004a6ccde2f92d768e3e1d46092"
-  integrity sha512-cxhaF7GBK0a9De5mi73Ih3qAHSPHI5VcTfzuiHB3MOYOSvq0okFSzsSJ/x+Ii8xs3HONLTZmgbieGlm9JKOyqg==
+"@skalenetwork/t-encrypt@0.5.1-develop.0":
+  version "0.5.1-develop.0"
+  resolved "https://registry.yarnpkg.com/@skalenetwork/t-encrypt/-/t-encrypt-0.5.1-develop.0.tgz#e82711f090dbff9cec24b5ec6066497dac195c7a"
+  integrity sha512-Xt8Uw8OW4nxs2ZXiAinTWAmaXMmA6BmDjZSfwdZlJ+tdL9eDK58BTDMGNF5RPAGkeftsUYDkP1T1OL3q7dywtg==
 
 "@types/estree@1.0.7":
   version "1.0.7"

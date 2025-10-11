@@ -22,4 +22,5 @@
  */
 
 export const BITE_ADDRESS = '0x42495445204D452049274d20454e435259505444';
+export const DEFAULT_GAS_LIMIT = '0x493e0'; // 300000
 export const NODE_ENV = process.env.NODE_ENV

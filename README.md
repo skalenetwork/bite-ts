@@ -24,6 +24,13 @@ npm i @skalenetwork/bite
 ```
 
 ## Usage
+
+> ⚠️ **Warning**  
+> When passing a transaction to `bite.ts`, it is necessary to set the gasLimit field manually.
+This is because estimateGas does not return a proper value for encrypted transactions.
+If gasLimit is omitted, `bite.ts` will automatically set it to **300000**.
+For best results, always calculate and set a gas limit appropriate for your specific transaction.
+
 Here is an example of how to use the library to encrypt transaction data:
 
 ```javascript
