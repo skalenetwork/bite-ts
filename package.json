@@ -1,6 +1,6 @@
 {
   "name": "@skalenetwork/bite",
-  "version": "0.4.1",
+  "version": "0.7.0",
   "description": "TS Library to interact with BITE protocol",
   "homepage": "https://github.com/skalenetwork/bite.ts",
   "license": "LGPL-3.0-or-later",
@@ -37,15 +37,16 @@
     "encryption"
   ],
   "dependencies": {
-    "@skalenetwork/t-encrypt": "0.5.1-develop.0",
+    "@ethereumjs/rlp": "^10.0.0",
+    "@skalenetwork/t-encrypt": "0.6.0-develop.0",
     "tslog": "^4.9.3"
   },
   "devDependencies": {
-    "typescript": "^5.3.0",
-    "tsup": "^7.2.0",
-    "ethers": "^6.13.5",
+    "@typescript-eslint/eslint-plugin": "^8.33.0",
+    "@typescript-eslint/parser": "^8.33.0",
     "eslint": "^8.45.0",
-    "@typescript-eslint/parser":"^8.33.0",
-    "@typescript-eslint/eslint-plugin": "^8.33.0"
+    "ethers": "^6.13.5",
+    "tsup": "^7.2.0",
+    "typescript": "^5.3.0"
   }
 }
