@@ -36,6 +36,7 @@ import * as constants from '../utils/constants';
 export interface Transaction {
     to: string;
     data: string;
+    gasLimit?: string;
 }
 
 /**
@@ -60,10 +61,14 @@ export async function encryptTransaction(
 
         const encryptedData = await encryptMessage(rlpEncodedData, endpoint);
 
+        // Set default gasLimit if not set
+        const biteGasLimit = tx.gasLimit ?? constants.DEFAULT_GAS_LIMIT;
+
         return {
             ...tx,
             data: encryptedData,
-            to: constants.BITE_ADDRESS
+            to: constants.BITE_ADDRESS,
+            gasLimit: biteGasLimit
         };
     } catch (error) {
         logger.error('Error encrypting transaction:', error);
@@ -88,11 +93,15 @@ export async function encryptTransactionMockup(tx: Transaction): Promise<Transac
         const rlpEncodedData = rlpEncodeTransactionData(txTo, txData);
 
         const encryptedData = await encryptMessageMockup(rlpEncodedData);
-
+      
+        // Set default gasLimit if not set
+        const biteGasLimit = tx.gasLimit ?? constants.DEFAULT_GAS_LIMIT;
+      
         return {
             ...tx,
             data: encryptedData,
-            to: constants.BITE_ADDRESS
+            to: constants.BITE_ADDRESS,
+            gasLimit: biteGasLimit
         };
     } catch (error) {
         logger.error('Error encrypting transaction (mockup):', error);
