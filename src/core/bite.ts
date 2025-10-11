@@ -48,10 +48,10 @@ export class BITE {
     }
 
     /**
-     * Fetch the common BLS public key from the configured endpoint.
+     * Fetch the committees info from the configured endpoint.
      */
-    async getCommonPublicKey(): Promise<string> {
-        return biteRpc.getCommonPublicKey(this.providerURL);
+    async getCommitteesInfo(): Promise<biteRpc.CommonPublicKeyResponse[]> {
+        return biteRpc.getCommitteesInfo(this.providerURL);
     }
 
     /**
