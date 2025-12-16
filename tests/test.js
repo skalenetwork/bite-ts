@@ -230,5 +230,7 @@ const chainID = process.argv[3] || "0x2f8d4b0d3abc9";
 const INSECURE_ETH_PRIVATE_KEY = process.argv[4] || "0x0e394ff21db60660a27a6383aedf8c75070648965acbef7c369c1bae2141a485";
 const bite = new BITE(providerUrl);
 
-runSampleBITE1( providerUrl, chainID, INSECURE_ETH_PRIVATE_KEY );
-runSampleBITE2( providerUrl, chainID, INSECURE_ETH_PRIVATE_KEY );
+(async () => {
+    await runSampleBITE1(providerUrl, chainID, INSECURE_ETH_PRIVATE_KEY);
+    await runSampleBITE2(providerUrl, chainID, INSECURE_ETH_PRIVATE_KEY);
+})();
