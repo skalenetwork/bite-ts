@@ -59,7 +59,7 @@ jobs:
 
       - name: Run skaled container
         run: |
-          export SKALED_RELEASE=2299-bite-2-relwithdebinfo
+          export SKALED_RELEASE=2299-bite-2-pow-fix-relwithdebinfo
           echo "SKALED_RELEASE=$SKALED_RELEASE" >> $GITHUB_ENV
         shell: bash
 
