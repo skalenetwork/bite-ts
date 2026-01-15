@@ -18,19 +18,14 @@ contract Game {
     function decryptAndExecute() public {
         uint256 randomNumber = uint256(keccak256(abi.encodePacked(block.timestamp, block.number))) % 2500000 + 1000000;
         bytes memory randomBytes = abi.encode(encrypted, plaintext);
-        bytes memory input = abi.encode(address(this), randomNumber, randomBytes);
+        bytes memory input = abi.encode(randomNumber, randomBytes);
 
-        (bool success, bytes memory result) = address(0x13).staticcall(input);
-        require(success, "0x13 call failed");
+        (bool success, bytes memory result) = address(0x14).staticcall(input);
+        require(success, "0x14 call failed");
 
         // Extract address from first 20 bytes of result and transfer
         address walletAddress = address(bytes20(result));
         payable(walletAddress).transfer(448384400000);
-
-        input = abi.encode(result, address(this), randomNumber, randomBytes);
-
-        (success, result) = address(0x14).staticcall(input);
-        require(success, "0x14 call failed");
     }
 
     function onDecrypt(bytes[] calldata decryptedArguments, bytes[] calldata plaintextArguments) public {
