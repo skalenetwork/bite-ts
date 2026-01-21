@@ -129,10 +129,22 @@ export function decryptBalance(secretKey, encryptedDataHex) {
     let decrypted = decipher.update(ciphertext);
     decrypted = Buffer.concat([decrypted, decipher.final()]);
 
-    // Assuming value is a string (e.g. "100") or we return hex if needed
-    // The prompt says "decrypted data correspond to user's balance"
-    // Usually that's a string in JSON/Text format or a BigInt
-    // Let's return UTF-8 string
-    return decrypted.toString('utf8');
+    // If the plaintext was stored as a *textual* hex string (e.g. "0x..."), UTF-8 decoding is correct.
+    // If it was stored as raw bytes, represent it as hex instead.
+    let decryptedString = decrypted.toString('utf8');
+
+    const maybeHex = decryptedString.startsWith('0x') ? decryptedString.slice(2) : decryptedString;
+    const looksLikeHex = /^[0-9a-fA-F]*$/.test(maybeHex) && maybeHex.length % 2 === 0;
+
+    if (!looksLikeHex) {
+        decryptedString = `0x${decrypted.toString('hex')}`;
+    }
+
+    // Convert hex string to decimal if applicable
+    if (decryptedString.startsWith('0x')) {
+        return BigInt(decryptedString).toString();
+    }
+
+    return decryptedString;
 }
 
