@@ -1,4 +1,5 @@
 import { encryptTokenTransfer, decryptBalance } from './encryption';
+import { ethers } from 'ethers';
 
 const connectBtn = document.getElementById('connectBtn');
 const sendBtn = document.getElementById('sendBtn');
@@ -35,7 +36,6 @@ async function handleSend() {
     sendBtn.disabled = true;
 
     const providerUrl = document.getElementById('providerUrl').value;
-    const chainID = document.getElementById('chainID').value;
     const tokenAddress = document.getElementById('tokenAddress').value;
     const recipient = document.getElementById('recipient').value;
     const amount = document.getElementById('amount').value;
@@ -58,7 +58,7 @@ async function handleSend() {
             to: result.to,
             data: result.data,
             value: '0x0', // 0 ETH
-            gas: '0x30d40', // 200,000 gas 
+            gas: '0xf4240', // 200,000 gas 
         };
 
         const txHash = await window.ethereum.request({
@@ -121,3 +121,78 @@ if (decryptBtn) {
     decryptBtn.addEventListener('click', handleDecrypt);
 }
 
+/* User Management */
+
+const generateUserBtn = document.getElementById('generateUserBtn');
+const generatedUserInfo = document.getElementById('generatedUserInfo');
+const genPrivKey = document.getElementById('genPrivKey');
+const genPubKey = document.getElementById('genPubKey');
+const genAddress = document.getElementById('genAddress');
+
+if (generateUserBtn) {
+    generateUserBtn.addEventListener('click', () => {
+        const wallet = ethers.Wallet.createRandom();
+        genPrivKey.textContent = wallet.privateKey;
+        genPubKey.textContent = wallet.signingKey.publicKey;
+        genAddress.textContent = wallet.address;
+        generatedUserInfo.style.display = 'block';
+    });
+}
+
+const registerUserBtn = document.getElementById('registerUserBtn');
+const regPublicKeyInput = document.getElementById('regPublicKey');
+const regAmountInput = document.getElementById('regAmount');
+
+if (registerUserBtn) {
+    registerUserBtn.addEventListener('click', async () => {
+        try {
+            const pubKeyHex = regPublicKeyInput.value.trim();
+            const amount = regAmountInput.value.trim();
+            const tokenAddr = document.getElementById('tokenAddress').value;
+
+            if (!pubKeyHex || !amount || !tokenAddr) {
+                 setStatus("Please fill all fields (Token Addr, Public Key, Amount)", "error");
+                 return;
+            }
+            
+            // Parse Public Key
+            let cleanKey = pubKeyHex;
+            if (cleanKey.startsWith('0x')) cleanKey = cleanKey.slice(2);
+            // Remove 04 prefix if present and length is 130
+            if (cleanKey.length === 130 && cleanKey.startsWith('04')) {
+                 cleanKey = cleanKey.slice(2);       
+            }
+
+            if (cleanKey.length !== 128) {
+                 setStatus("Invalid Public Key length. Expected uncompressed key (start with 04).", "error");
+                 return; 
+            }
+
+            const x = "0x" + cleanKey.slice(0, 64);
+            const y = "0x" + cleanKey.slice(64);
+
+            setStatus("Registering user...", "info");
+
+            // ABI for registerPublicKey
+            const abi = [
+                "function registerPublicKey((bytes32,bytes32) publicKey) payable"
+            ];
+            
+            // Use browser provider
+            const provider = new ethers.BrowserProvider(window.ethereum);
+            const signer = await provider.getSigner();
+            const contract = new ethers.Contract(tokenAddr, abi, signer);
+            
+            const tx = await contract.registerPublicKey([x, y], {
+                value: ethers.parseEther(amount),
+                gasLimit: 500000
+            });
+            
+            setStatus(`Registration sent! Hash: ${tx.hash}`, 'success');
+
+        } catch (e) {
+            console.error(e);
+            setStatus("Error: " + e.message, "error");
+        }
+    });
+}
