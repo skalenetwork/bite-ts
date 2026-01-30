@@ -76,6 +76,43 @@ export async function encryptTransaction(
     }
 }
 
+export async function encryptTransactionWithCommitteeInfo(
+    tx: Transaction,
+    committees: utils.CommonPublicKeyResponse[]
+): Promise<Transaction> {
+    try {
+        const validatedTx = validateAndExtractTransactionFields(tx);
+        const txTo = validatedTx.to;
+        const txData = validatedTx.data;
+
+        // RLP encode data and to fields
+        const rlpEncodedData = rlpEncodeTransactionData(txTo, txData);
+
+        let encryptedData: string;
+
+        if (committees.length === 1) {
+            encryptedData = await encryptRawMessage(rlpEncodedData, committees[0].commonBLSPublicKey);
+        } else if (committees.length === 2) {
+            encryptedData = await encryptRawMessageDualKey(rlpEncodedData, committees[0].commonBLSPublicKey, committees[1].commonBLSPublicKey);
+        } else {
+            throw new Error("Invalid input: committees array must contain one or two committee info objects");
+        }
+
+        // Set default gasLimit if not set
+        const biteGasLimit = tx.gasLimit ?? constants.DEFAULT_GAS_LIMIT;
+
+        return {
+            ...tx,
+            data: encryptedData,
+            to: constants.BITE_ADDRESS,
+            gasLimit: biteGasLimit
+        };
+    } catch (error) {
+        logger.error('Error encrypting transaction with committee info:', error);
+        throw error;
+    }
+}
+
 /**
  * Encrypts a transaction using mock encryption.
  *

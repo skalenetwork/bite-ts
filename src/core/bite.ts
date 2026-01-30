@@ -23,6 +23,7 @@
 
 import * as encrypt from './encrypt';
 import * as biteRpc from './biteRpc';
+import * as utils from '../utils/helper';
 
 export class BITE {
     private readonly providerURL: string;
@@ -47,10 +48,17 @@ export class BITE {
         return encrypt.encryptTransaction(tx, this.providerURL);
     }
 
+    async encryptTransactionWithCommitteeInfo(
+        tx: encrypt.Transaction,
+        committees: utils.CommonPublicKeyResponse[]
+    ): Promise<encrypt.Transaction> {
+        return encrypt.encryptTransactionWithCommitteeInfo(tx, committees);
+    }
+
     /**
      * Fetch the committees info from the configured endpoint.
      */
-    async getCommitteesInfo(): Promise<biteRpc.CommonPublicKeyResponse[]> {
+    async getCommitteesInfo(): Promise<utils.CommonPublicKeyResponse[]> {
         return biteRpc.getCommitteesInfo(this.providerURL);
     }
 

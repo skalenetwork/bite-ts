@@ -21,6 +21,11 @@
  * @copyright SKALE Labs 2025-Present
  */
 
+export interface CommonPublicKeyResponse {
+    commonBLSPublicKey: string;
+    epochId: number;
+}
+
 export function remove0xPrefixIfNeeded(str: string): string {
     return str.startsWith('0x') ? str.slice(2) : str;
 }
