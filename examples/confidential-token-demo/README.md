@@ -11,7 +11,7 @@ This demo provides a complete client-side interface for interacting with confide
 ## Tech Stack
 
 *   **Vite**: Frontend tooling and development server.
-*   **@skalenetwork/t-encrypt**: For threshold encryption of the transaction payload.
+*   **@skalenetwork/bite-ts**: For threshold encryption of the transaction payload.
 *   **ethers.js**: For blockchain interaction and encoding.
 *   **Node.js Crypto**: For AES and ECDH decryption logic.
 
