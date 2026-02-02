@@ -50,6 +50,11 @@ export class BITE {
         return encrypt.encryptTransaction(tx, committees);
     }
 
+    /**
+     * Encrypt a transaction object using BLS public key and provided committees info.
+     * @param tx - The transaction to encrypt.
+     * @param committees - The committees info object.
+     */
     static async encryptTransactionWithCommitteeInfo(
         tx: encrypt.Transaction,
         committees: utils.CommitteeInfo[]
