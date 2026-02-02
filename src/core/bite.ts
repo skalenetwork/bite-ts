@@ -23,6 +23,7 @@
 
 import * as encrypt from './encrypt';
 import * as biteRpc from './biteRpc';
+import * as utils from '../utils/helper';
 
 export class BITE {
     private readonly providerURL: string;
@@ -36,7 +37,8 @@ export class BITE {
      * @param message - Hex string (with or without 0x).
      */
     async encryptMessage(message: string): Promise<string> {
-        return encrypt.encryptMessage(message, this.providerURL);
+        const committees = await biteRpc.getCommitteesInfo(this.providerURL);
+        return encrypt.encryptMessage(message, committees);
     }
 
     /**
@@ -44,13 +46,26 @@ export class BITE {
      * @param tx - The transaction to encrypt.
      */
     async encryptTransaction(tx: encrypt.Transaction): Promise<encrypt.Transaction> {
-        return encrypt.encryptTransaction(tx, this.providerURL);
+        const committees = await biteRpc.getCommitteesInfo(this.providerURL);
+        return encrypt.encryptTransaction(tx, committees);
+    }
+
+    /**
+     * Encrypt a transaction object using BLS public key and provided committees info.
+     * @param tx - The transaction to encrypt.
+     * @param committees - The committees info object.
+     */
+    static async encryptTransactionWithCommitteeInfo(
+        tx: encrypt.Transaction,
+        committees: utils.CommitteeInfo[]
+    ): Promise<encrypt.Transaction> {
+        return encrypt.encryptTransaction(tx, committees);
     }
 
     /**
      * Fetch the committees info from the configured endpoint.
      */
-    async getCommitteesInfo(): Promise<biteRpc.CommonPublicKeyResponse[]> {
+    async getCommitteesInfo(): Promise<utils.CommitteeInfo[]> {
         return biteRpc.getCommitteesInfo(this.providerURL);
     }
 
