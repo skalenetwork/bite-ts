@@ -21,7 +21,7 @@
  * @copyright SKALE Labs 2025-Present
  */
 
-export interface CommonPublicKeyResponse {
+export interface CommitteeInfo {
     commonBLSPublicKey: string;
     epochId: number;
 }

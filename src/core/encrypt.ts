@@ -42,13 +42,13 @@ export interface Transaction {
  * Encrypts a transaction using the real BLS key.
  *
  * @param {Transaction} tx - The transaction object.
- * @param {utils.CommonPublicKeyResponse[]} committees - The committees info object.
+ * @param {utils.CommitteeInfo[]} committees - The committees info object.
  * @returns {Promise<Transaction>} - A promise with encrypted transaction.
  *
  */
 export async function encryptTransaction(
     tx: Transaction,
-    committees: utils.CommonPublicKeyResponse[]
+    committees: utils.CommitteeInfo[]
 ): Promise<Transaction> {
     try {
         const validatedTx = validateAndExtractTransactionFields(tx);
@@ -112,12 +112,12 @@ export async function encryptTransactionMockup(tx: Transaction): Promise<Transac
  * Encrypts a raw hex-encoded message using the real BLS key(s).
  *
  * @param {string} message - The message to encrypt, as a hex string (with or without 0x prefix).
- * @param {utils.CommonPublicKeyResponse[]} committees - The committees info object.
+ * @param {utils.CommitteeInfo[]} committees - The committees info object.
  * @returns {Promise<string>} - The encrypted message.
  */
 export async function encryptMessage(
     message: string,
-    committees: utils.CommonPublicKeyResponse[]
+    committees: utils.CommitteeInfo[]
 ): Promise<string> {
     try {
         const data = utils.remove0xPrefixIfNeeded(message);

@@ -50,9 +50,9 @@ export class BITE {
         return encrypt.encryptTransaction(tx, committees);
     }
 
-    async encryptTransactionWithCommitteeInfo(
+    static async encryptTransactionWithCommitteeInfo(
         tx: encrypt.Transaction,
-        committees: utils.CommonPublicKeyResponse[]
+        committees: utils.CommitteeInfo[]
     ): Promise<encrypt.Transaction> {
         return encrypt.encryptTransaction(tx, committees);
     }
@@ -60,7 +60,7 @@ export class BITE {
     /**
      * Fetch the committees info from the configured endpoint.
      */
-    async getCommitteesInfo(): Promise<utils.CommonPublicKeyResponse[]> {
+    async getCommitteesInfo(): Promise<utils.CommitteeInfo[]> {
         return biteRpc.getCommitteesInfo(this.providerURL);
     }
 

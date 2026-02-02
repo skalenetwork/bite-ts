@@ -86,7 +86,7 @@ export async function getDecryptedTransactionData(
  * @returns An array of objects containing the BLS public key and epoch ID.
  * @throws If the response is invalid or the key format is incorrect.
  */
-export async function getCommitteesInfo(endpoint: string): Promise<utils.CommonPublicKeyResponse[]> {
+export async function getCommitteesInfo(endpoint: string): Promise<utils.CommitteeInfo[]> {
     try {
         const requestBody: JsonRpcRequest = {
             jsonrpc: '2.0',
@@ -95,7 +95,7 @@ export async function getCommitteesInfo(endpoint: string): Promise<utils.CommonP
             id: 1,
         };
         
-        const result = await sendRpcRequest<utils.CommonPublicKeyResponse[]>(endpoint, requestBody);
+        const result = await sendRpcRequest<utils.CommitteeInfo[]>(endpoint, requestBody);
 
         if (!Array.isArray(result)) {
             throw new Error('Result is not an array');
