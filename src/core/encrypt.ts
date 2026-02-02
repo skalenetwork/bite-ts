@@ -27,7 +27,6 @@ import {
     encryptMessageMockup as encryptRawMessageMockup
 } from '@skalenetwork/t-encrypt';
 import { encode } from '@ethereumjs/rlp';
-import {getCommitteesInfo} from './biteRpc';
 import {logger} from "../utils/logger";
 import * as utils from '../utils/helper';
 import * as constants from '../utils/constants';
@@ -43,13 +42,13 @@ export interface Transaction {
  * Encrypts a transaction using the real BLS key.
  *
  * @param {Transaction} tx - The transaction object.
- * @param {string} endpoint - BITE URL provider.
+ * @param {utils.CommonPublicKeyResponse[]} committees - The committees info object.
  * @returns {Promise<Transaction>} - A promise with encrypted transaction.
  *
  */
 export async function encryptTransaction(
     tx: Transaction,
-    endpoint: string
+    committees: utils.CommonPublicKeyResponse[]
 ): Promise<Transaction> {
     try {
         const validatedTx = validateAndExtractTransactionFields(tx);
@@ -59,7 +58,7 @@ export async function encryptTransaction(
         // RLP encode data and to fields
         const rlpEncodedData = rlpEncodeTransactionData(txTo, txData);
 
-        const encryptedData = await encryptMessage(rlpEncodedData, endpoint);
+        const encryptedData = await encryptMessage(rlpEncodedData, committees);
 
         // Set default gasLimit if not set
         const biteGasLimit = tx.gasLimit ?? constants.DEFAULT_GAS_LIMIT;
@@ -72,43 +71,6 @@ export async function encryptTransaction(
         };
     } catch (error) {
         logger.error('Error encrypting transaction:', error);
-        throw error;
-    }
-}
-
-export async function encryptTransactionWithCommitteeInfo(
-    tx: Transaction,
-    committees: utils.CommonPublicKeyResponse[]
-): Promise<Transaction> {
-    try {
-        const validatedTx = validateAndExtractTransactionFields(tx);
-        const txTo = validatedTx.to;
-        const txData = validatedTx.data;
-
-        // RLP encode data and to fields
-        const rlpEncodedData = rlpEncodeTransactionData(txTo, txData);
-
-        let encryptedData: string;
-
-        if (committees.length === 1) {
-            encryptedData = await encryptRawMessage(rlpEncodedData, committees[0].commonBLSPublicKey);
-        } else if (committees.length === 2) {
-            encryptedData = await encryptRawMessageDualKey(rlpEncodedData, committees[0].commonBLSPublicKey, committees[1].commonBLSPublicKey);
-        } else {
-            throw new Error("Invalid input: committees array must contain one or two committee info objects");
-        }
-
-        // Set default gasLimit if not set
-        const biteGasLimit = tx.gasLimit ?? constants.DEFAULT_GAS_LIMIT;
-
-        return {
-            ...tx,
-            data: encryptedData,
-            to: constants.BITE_ADDRESS,
-            gasLimit: biteGasLimit
-        };
-    } catch (error) {
-        logger.error('Error encrypting transaction with committee info:', error);
         throw error;
     }
 }
@@ -150,31 +112,29 @@ export async function encryptTransactionMockup(tx: Transaction): Promise<Transac
  * Encrypts a raw hex-encoded message using the real BLS key(s).
  *
  * @param {string} message - The message to encrypt, as a hex string (with or without 0x prefix).
- * @param {string} endpoint - BITE URL provider.
+ * @param {utils.CommonPublicKeyResponse[]} committees - The committees info object.
  * @returns {Promise<string>} - The encrypted message.
  */
 export async function encryptMessage(
     message: string,
-    endpoint: string
+    committees: utils.CommonPublicKeyResponse[]
 ): Promise<string> {
     try {
         const data = utils.remove0xPrefixIfNeeded(message);
         utils.validateHexString(data);
 
-        const publicKeyResponses = await getCommitteesInfo(endpoint);
-
-        if (publicKeyResponses.length === 1) {
-            const publicKeyResponse = publicKeyResponses[0];
+        if (committees.length === 1) {
+            const publicKeyResponse = committees[0];
             const encryptedRawMessage = await encryptRawMessage(data, publicKeyResponse.commonBLSPublicKey);
 
             // RLP encode epochID and encrypted message
             const rlpEncodedResult = rlpEncodeMessageData([publicKeyResponse.epochId, Buffer.from(encryptedRawMessage, 'hex')]);
             return `0x${rlpEncodedResult}`;
         } else {
-            const encryptedRawMessage = await encryptRawMessageDualKey(data, publicKeyResponses[0].commonBLSPublicKey, publicKeyResponses[1].commonBLSPublicKey);
+            const encryptedRawMessage = await encryptRawMessageDualKey(data, committees[0].commonBLSPublicKey, committees[1].commonBLSPublicKey);
 
             // RLP encode epochID and encrypted message
-            const rlpEncodedResult = rlpEncodeMessageData([publicKeyResponses[0].epochId, Buffer.from(encryptedRawMessage, 'hex')]);
+            const rlpEncodedResult = rlpEncodeMessageData([committees[0].epochId, Buffer.from(encryptedRawMessage, 'hex')]);
             return `0x${rlpEncodedResult}`;
         }
     } catch (error) {

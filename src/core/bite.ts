@@ -37,7 +37,8 @@ export class BITE {
      * @param message - Hex string (with or without 0x).
      */
     async encryptMessage(message: string): Promise<string> {
-        return encrypt.encryptMessage(message, this.providerURL);
+        const committees = await biteRpc.getCommitteesInfo(this.providerURL);
+        return encrypt.encryptMessage(message, committees);
     }
 
     /**
@@ -45,14 +46,15 @@ export class BITE {
      * @param tx - The transaction to encrypt.
      */
     async encryptTransaction(tx: encrypt.Transaction): Promise<encrypt.Transaction> {
-        return encrypt.encryptTransaction(tx, this.providerURL);
+        const committees = await biteRpc.getCommitteesInfo(this.providerURL);
+        return encrypt.encryptTransaction(tx, committees);
     }
 
     async encryptTransactionWithCommitteeInfo(
         tx: encrypt.Transaction,
         committees: utils.CommonPublicKeyResponse[]
     ): Promise<encrypt.Transaction> {
-        return encrypt.encryptTransactionWithCommitteeInfo(tx, committees);
+        return encrypt.encryptTransaction(tx, committees);
     }
 
     /**
