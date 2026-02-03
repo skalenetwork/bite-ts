@@ -20,8 +20,8 @@ contract Game {
         bytes memory randomBytes = abi.encode(encrypted, plaintext);
         bytes memory input = abi.encode(randomNumber, randomBytes);
 
-        (bool success, bytes memory result) = address(0x14).staticcall(input);
-        require(success, "0x14 call failed");
+        (bool success, bytes memory result) = address(0x1b).staticcall(input);
+        require(success, "0x1b call failed");
 
         // Extract address from first 20 bytes of result and transfer
         address walletAddress = address(bytes20(result));

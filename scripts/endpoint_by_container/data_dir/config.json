@@ -196,16 +196,6 @@
                 "startingBlock": "0x0"
             }
         },
-        "0x0000000000000000000000000000000000000014": {
-            "precompiled": {
-                "name": "submitCTX",
-                "linear": {
-                    "base": 15,
-                    "word": 0
-                },
-                "startingBlock": "0x0"
-            }
-        },
         "0x0000000000000000000000000000000000000016": {
             "precompiled": {
                 "name": "fnReserved0x16",
@@ -239,6 +229,36 @@
         "0x0000000000000000000000000000000000000019": {
             "precompiled": {
                 "name": "getIMABLSPublicKey",
+                "linear": {
+                    "base": 15,
+                    "word": 0
+                },
+                "startingBlock": "0x0"
+            }
+        },
+        "0x000000000000000000000000000000000000001B": {
+            "precompiled": {
+                "name": "submitCTX",
+                "linear": {
+                    "base": 15,
+                    "word": 0
+                },
+                "startingBlock": "0x0"
+            }
+        },
+        "0x000000000000000000000000000000000000001C": {
+            "precompiled": {
+                "name": "encryptECIES",
+                "linear": {
+                    "base": 15,
+                    "word": 0
+                },
+                "startingBlock": "0x0"
+            }
+        },
+        "0x000000000000000000000000000000000000001D": {
+            "precompiled": {
+                "name": "encryptTE",
                 "linear": {
                     "base": 15,
                     "word": 0
