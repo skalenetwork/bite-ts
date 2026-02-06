@@ -59,7 +59,7 @@ jobs:
 
       - name: Run skaled container
         run: |
-          export SKALED_RELEASE=5.1.0-develop.4-bite2
+          export SKALED_RELEASE=5.1.0-develop.7-bite2
           echo "SKALED_RELEASE=$SKALED_RELEASE" >> $GITHUB_ENV
         shell: bash
 
