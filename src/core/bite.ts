@@ -57,7 +57,7 @@ export class BITE {
      */
     async encryptMessageForCTX(message: string, scAddress: string): Promise<string> {
         const committees = await biteRpc.getCommitteesInfo(this.providerURL);
-        return encrypt.encryptMessage(message, committees, undefined, scAddress);
+        return encrypt.encryptMessage(message, committees, scAddress);
     }
 
     /**
