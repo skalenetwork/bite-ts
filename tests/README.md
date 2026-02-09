@@ -25,6 +25,7 @@ The test relies on a Solidity contract named `Game`. This contract implements a 
     *   `submitPlaintext(bytes)`: Adds plaintext data to the state.
     *   `decryptAndExecute()`: Packages the encrypted and plaintext data and performs a `staticcall` to the precompiled `submitCTX` stored at address `0x14`. The `submitCTX` precompile creates a BITE2 Transaction (Confidential Transaction - CTX), which is then added to the next block.
     *   `onDecrypt(bytes[], bytes[])`: Called as part of the execution flow to process the now-decrypted data. It calculates the sums of the values and determines if the user "won" (difference between sums < 101). Every CTX created via the `submitCTX` precompile is sent to the `onDecrypt(bytes[], bytes[])` function of the same address that initiated the call to `submitCTX`.
+    *   `didUserWin`: Returns the `userWon` flag.
 
 ## Test Steps
 
@@ -36,7 +37,7 @@ The `runSampleBITE2` function performs the following steps:
 
 2.  **Encrypted Data Submission**:
     *   Generates 5 random numbers (range 50-249).
-    *   Encrypts each number using `bite.encryptMessage(hexValue)`.
+    *   Encrypts each number using `bite.encryptMessageForCtx(hexValue, contractAddress)`.
     *   Calls `submitEncrypted` on the contract to store these values.
 
 3.  **Plaintext Data Submission**:

@@ -119,6 +119,17 @@ Encrypts a raw hex-encoded message using the BLS threshold encryption from the c
 
 ---
 
+### `bite.encryptMessageForCTX(message, scAddress)`
+
+Encrypts a raw hex-encoded message specifically for Confidential Transactions (CTX). This is a convenience method that sets the `scAddress` as `AADTE`.
+
+- **Parameters**:
+  - `message`: `string` – A hex string to encrypt (with or without `0x` prefix).
+  - `scAddress`: `string` – The Smart Contract Address to be used as AADTE.
+- **Returns**: `Promise<string>` – An encrypted hex string in RLP format.
+
+---
+
 ### `bite.getDecryptedTransactionData(transactionHash)`
 
 Retrieves decrypted transaction data from the configured BITE provider using the `bite_getDecryptedTransactionData` JSON-RPC method.

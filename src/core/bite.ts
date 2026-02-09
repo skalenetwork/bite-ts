@@ -61,16 +61,6 @@ export class BITE {
     }
 
     /**
-     * Encrypt a transaction object using BLS public key for CTX.
-     * @param tx - The transaction to encrypt.
-     * @param scAddress - Optional Smart Contract Address for AADTE. If not provided, tx.to will be used.
-     */
-    async encryptTransactionForCTX(tx: encrypt.Transaction, scAddress?: string): Promise<encrypt.Transaction> {
-        const committees = await biteRpc.getCommitteesInfo(this.providerURL);
-        return encrypt.encryptTransaction(tx, committees, undefined, scAddress ?? tx.to);
-    }
-
-    /**
      * Encrypt a transaction object using BLS public key and provided committees info.
      * @param tx - The transaction to encrypt.
      * @param committees - The committees info object.
