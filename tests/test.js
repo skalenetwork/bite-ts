@@ -172,7 +172,7 @@ async function runSampleBITE2( providerUrl, chainID, INSECURE_ETH_PRIVATE_KEY ) 
 
         // Wait for one more block to be created
         console.log("\nStep 7: Waiting for one more block...");
-        const currentBlock = await provider.getBlockNumber();
+        let currentBlock = await provider.getBlockNumber();
         console.log(`Current block: ${currentBlock}`);
         
         // Poll for next block
