@@ -70,3 +70,8 @@ Install dependencies and run the project locally:
 ```
 yarn && yarn build && yarn dev
 ```
+
+## Confidential token transfer
+
+See [Confidential Token Demo](./confidential-token-demo/README.md).
+

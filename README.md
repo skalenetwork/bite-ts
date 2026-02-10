@@ -93,6 +93,20 @@ Encrypts a transaction object using the BLS threshold encryption public key(s) f
 
 ---
 
+### `BITE.encryptTransactionWithCommitteeInfo(tx, committees)`
+
+Static method that encrypts a transaction object using the provided committee information, avoiding an internal RPC call to fetch committees.
+
+- **Parameters**:
+  - `tx`: An object containing `data` and `to` fields as hex strings.
+  - `committees`: `Array` – An array of committee info objects (as returned by `getCommitteesInfo`).
+- **Returns**: `Promise<Transaction>` – The encrypted transaction with modified `data` and `to` fields.
+
+**Use Cases**:
+- **Offline / Cached Encryption**: When committee information is already known or cached, preventing redundant RPC calls.
+
+---
+
 ### `bite.encryptMessage(message)`
 
 Encrypts a raw hex-encoded message using the BLS threshold encryption from the configured BITE provider.

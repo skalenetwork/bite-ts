@@ -7,6 +7,6 @@ SGX_WALLET_IMAGE_NAME=skalenetwork/sgxwallet_sim:$1
 
 docker rm -f $SGX_WALLET_CONTAINER_NAME || true
 docker pull $SGX_WALLET_IMAGE_NAME
-docker run -d -p 1026-1031:1026-1031 --name $SGX_WALLET_CONTAINER_NAME $SGX_WALLET_IMAGE_NAME -s -y -d -V
-
-sleep 240
+docker run -d -p 1026-1031:1026-1031 --name $SGX_WALLET_CONTAINER_NAME \
+  --entrypoint /bin/bash $SGX_WALLET_IMAGE_NAME \
+  -c "source /opt/intel/sgxsdk/environment && cd /usr/src/sdk && ./sgxwallet -s -y -d -V"
