@@ -1,0 +1,19 @@
+{
+  "name": "confidential-token-demo",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@skalenetwork/bite": "file:../..",
+    "ethers": "^6.13.5"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0",
+    "vite-plugin-node-polyfills": "^0.21.0"
+  }
+}
