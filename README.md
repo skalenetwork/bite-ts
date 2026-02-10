@@ -119,6 +119,17 @@ Encrypts a raw hex-encoded message using the BLS threshold encryption from the c
 
 ---
 
+### `bite.encryptMessageForCTX(message, ctxSubmitterAddress)`
+
+Encrypts a raw hex-encoded message specifically for Confidential Transactions (CTX). This is a convenience method that sets the `ctxSubmitterAddress` as `aadTE` - Additional Authentication Data for Threshold Encryption, used to protect user's encrypted data. Address of smart contract that will create CTX with that data should be passed as `ctxSubmitterAddress`. When data is encrypted with `ctxSubmitterAddress` as `aadTE`, only `ctxSubmitterAddress` is allowed to submit CTX to decrypt that data. CTXs submitted by other addresses will be rejected.
+
+- **Parameters**:
+  - `message`: `string` – A hex string to encrypt (with or without `0x` prefix).
+  - `ctxSubmitterAddress`: `string` – The Smart Contract Address to be used as `aadTE`.
+- **Returns**: `Promise<string>` – An encrypted hex string in RLP format.
+
+---
+
 ### `bite.getDecryptedTransactionData(transactionHash)`
 
 Retrieves decrypted transaction data from the configured BITE provider using the `bite_getDecryptedTransactionData` JSON-RPC method.
