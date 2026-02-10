@@ -37,7 +37,7 @@ The `runSampleBITE2` function performs the following steps:
 
 2.  **Encrypted Data Submission**:
     *   Generates 5 random numbers (range 50-249).
-    *   Encrypts each number using `bite.encryptMessageForCtx(hexValue, contractAddress)`.
+    *   Encrypts each number using `bite.encryptMessageForCTX(hexValue, contractAddress)`.
     *   Calls `submitEncrypted` on the contract to store these values.
 
 3.  **Plaintext Data Submission**:

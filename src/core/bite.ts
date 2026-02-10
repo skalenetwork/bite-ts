@@ -53,11 +53,11 @@ export class BITE {
     /**
      * Encrypt a hex-encoded message using BLS public key for CTX.
      * @param message - Hex string (with or without 0x).
-     * @param scAddress - Smart Contract Address for AADTE.
+     * @param ctxSubmitterAddress - Smart Contract Address for aadTE.
      */
-    async encryptMessageForCTX(message: string, scAddress: string): Promise<string> {
+    async encryptMessageForCTX(message: string, ctxSubmitterAddress: string): Promise<string> {
         const committees = await biteRpc.getCommitteesInfo(this.providerURL);
-        return encrypt.encryptMessage(message, committees, scAddress);
+        return encrypt.encryptMessage(message, committees, ctxSubmitterAddress);
     }
 
     /**
