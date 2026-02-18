@@ -1,6 +1,6 @@
 {
   "name": "@skalenetwork/bite",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "description": "TS Library to interact with BITE protocol",
   "homepage": "https://github.com/skalenetwork/bite.ts",
   "license": "LGPL-3.0-or-later",
@@ -38,7 +38,7 @@
   ],
   "dependencies": {
     "@ethereumjs/rlp": "10.0.0",
-    "@skalenetwork/t-encrypt": "0.6.0-develop.0",
+    "@skalenetwork/t-encrypt": "0.8.0-develop.0",
     "tslog": "^4.9.3"
   },
   "devDependencies": {
