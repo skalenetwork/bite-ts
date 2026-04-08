@@ -43,12 +43,16 @@ export interface Transaction {
  *
  * @param {Transaction} tx - The transaction object.
  * @param {utils.CommitteeInfo[]} committees - The committees info object.
+ * @param {string} [aadTE] - Optional TE Additional Authenticated Data.
+ * @param {string} [aadAES] - Optional AES Additional Authenticated Data.
  * @returns {Promise<Transaction>} - A promise with encrypted transaction.
  *
  */
 export async function encryptTransaction(
     tx: Transaction,
-    committees: utils.CommitteeInfo[]
+    committees: utils.CommitteeInfo[],
+    aadTE?: string,
+    aadAES?: string
 ): Promise<Transaction> {
     try {
         const validatedTx = validateAndExtractTransactionFields(tx);
@@ -58,7 +62,13 @@ export async function encryptTransaction(
         // RLP encode data and to fields
         const rlpEncodedData = rlpEncodeTransactionData(txTo, txData);
 
-        const encryptedData = await encryptMessage(rlpEncodedData, committees);
+        const sanitizedAADAES = aadAES ? utils.remove0xPrefixIfNeeded(aadAES) : undefined;
+        const sanitizedAADTE = aadTE ? utils.remove0xPrefixIfNeeded(aadTE) : undefined;
+
+        if (sanitizedAADAES) utils.validateHexString(sanitizedAADAES);
+        if (sanitizedAADTE) utils.validateHexString(sanitizedAADTE);
+
+        const encryptedData = await encryptMessage(rlpEncodedData, committees, sanitizedAADTE, sanitizedAADAES);
 
         // Set default gasLimit if not set
         const biteGasLimit = tx.gasLimit ?? constants.DEFAULT_GAS_LIMIT;
@@ -113,25 +123,40 @@ export async function encryptTransactionMockup(tx: Transaction): Promise<Transac
  *
  * @param {string} message - The message to encrypt, as a hex string (with or without 0x prefix).
  * @param {utils.CommitteeInfo[]} committees - The committees info object.
+ * @param {string} [aadTE] - Optional TE Additional Authenticated Data, as a hex string.
+ * @param {string} [aadAES] - Optional AES Additional Authenticated Data, as a hex string.
  * @returns {Promise<string>} - The encrypted message.
  */
 export async function encryptMessage(
     message: string,
-    committees: utils.CommitteeInfo[]
+    committees: utils.CommitteeInfo[],
+    aadTE?: string,
+    aadAES?: string
 ): Promise<string> {
     try {
         const data = utils.remove0xPrefixIfNeeded(message);
         utils.validateHexString(data);
 
+        const sanitizedAADTE = aadTE ? utils.remove0xPrefixIfNeeded(aadTE) : undefined;
+        const sanitizedAADAES = aadAES ? utils.remove0xPrefixIfNeeded(aadAES) : undefined;
+        
+        if (sanitizedAADAES) {
+            utils.validateHexString(sanitizedAADAES);
+        }
+        if (sanitizedAADTE) {
+            utils.validateHexString(sanitizedAADTE);
+        }
+
         if (committees.length === 1) {
             const publicKeyResponse = committees[0];
-            const encryptedRawMessage = await encryptRawMessage(data, publicKeyResponse.commonBLSPublicKey);
+            const encryptedRawMessage = await encryptRawMessage(data, publicKeyResponse.commonBLSPublicKey, sanitizedAADTE, sanitizedAADAES);
 
             // RLP encode epochID and encrypted message
             const rlpEncodedResult = rlpEncodeMessageData([publicKeyResponse.epochId, Buffer.from(encryptedRawMessage, 'hex')]);
             return `0x${rlpEncodedResult}`;
         } else {
-            const encryptedRawMessage = await encryptRawMessageDualKey(data, committees[0].commonBLSPublicKey, committees[1].commonBLSPublicKey);
+            const encryptedRawMessage = await encryptRawMessageDualKey(data, committees[0].commonBLSPublicKey,
+                committees[1].commonBLSPublicKey, sanitizedAADTE, sanitizedAADAES);
 
             // RLP encode epochID and encrypted message
             const rlpEncodedResult = rlpEncodeMessageData([committees[0].epochId, Buffer.from(encryptedRawMessage, 'hex')]);

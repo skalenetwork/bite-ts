@@ -131,7 +131,7 @@ async function runSampleBITE2( providerUrl, chainID, INSECURE_ETH_PRIVATE_KEY ) 
         for (let i = 0; i < encryptedNumbers.length; i++) {
             const hexValue = '0x' + encryptedNumbers[i].toString(16).padStart(64, '0'); // Convert to 32 bytes hex
 
-            const encryptedNumber = await bite.encryptMessage(hexValue);
+            const encryptedNumber = await bite.encryptMessageForCTX(hexValue, contractAddress);
             
             const tx = await contract.submitEncrypted(encryptedNumber);
             await tx.wait();
@@ -172,16 +172,15 @@ async function runSampleBITE2( providerUrl, chainID, INSECURE_ETH_PRIVATE_KEY ) 
 
         // Wait for one more block to be created
         console.log("\nStep 7: Waiting for one more block...");
-        const currentBlock = await provider.getBlockNumber();
+        let currentBlock = await provider.getBlockNumber();
         console.log(`Current block: ${currentBlock}`);
         
         // Poll for next block
-        let nextBlock = currentBlock;
-        while (nextBlock <= currentBlock) {
+        while (currentBlock == decryptReceipt.blockNumber) {
             await new Promise(resolve => setTimeout(resolve, 1000));
-            nextBlock = await provider.getBlockNumber();
+            currentBlock = await provider.getBlockNumber();
         }
-        console.log(`✓ Next block created: ${nextBlock}`);
+        console.log(`✓ Next block created: ${currentBlock}`);
 
         // Call getSumDecrypted
         console.log("\nStep 8: Calling getSumDecrypted...");
