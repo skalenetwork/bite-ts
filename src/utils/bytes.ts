@@ -18,7 +18,7 @@
 
 /**
  * @file bytes.ts
- * @copyright SKALE Labs 2025-Present
+ * @copyright SKALE Labs 2026-Present
  */
 
 export function hexToBytes(hex: string): Uint8Array {
