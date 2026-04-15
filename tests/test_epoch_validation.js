@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const { BITE } = require('..');
+const { BITE, bytesToHex, hexToBytes } = require('..');
 const { encode } = require('@ethereumjs/rlp');
 const ethers = require('ethers');
 
@@ -63,19 +63,19 @@ async function createForgedTransaction(transaction, forgedEpochId, publicKey) {
         const txData = transaction.data.startsWith('0x') ? transaction.data.slice(2) : transaction.data;
         
         // RLP encode transaction data (same as in the real encrypt function)
-        const toBuffer = Buffer.from(txTo, 'hex');
-        const dataBuffer = Buffer.from(txData, 'hex');
-        const rlpEncodedTxData = encode([dataBuffer, toBuffer]);
-        const rlpEncodedTxHex = Buffer.from(rlpEncodedTxData).toString('hex');
+        const toBytes = hexToBytes(txTo);
+        const dataBytes = hexToBytes(txData);
+        const rlpEncodedTxData = encode([dataBytes, toBytes]);
+        const rlpEncodedTxHex = bytesToHex(rlpEncodedTxData);
         
         // Encrypt the RLP encoded transaction data using the same BLS key
         const encryptedRawMessage = await encryptRawMessage(rlpEncodedTxHex, publicKey);
         
         // RLP encode with forged epochId (same structure as real encrypt function)
-        const encryptedMessageBuffer = Buffer.from(encryptedRawMessage, 'hex');
-        const forgedRlpEncoded = encode([forgedEpochId, encryptedMessageBuffer]);
+        const encryptedMessageBytes = hexToBytes(encryptedRawMessage);
+        const forgedRlpEncoded = encode([forgedEpochId, encryptedMessageBytes]);
         
-        return '0x' + Buffer.from(forgedRlpEncoded).toString('hex');
+        return '0x' + bytesToHex(forgedRlpEncoded);
     } catch (error) {
         console.error('Error creating forged transaction:', error);
         throw error;
