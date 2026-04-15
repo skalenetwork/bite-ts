@@ -372,6 +372,10 @@
             "flexibleDeploymentPatchTimestamp": 1721826000,
             "verifyBlsSyncPatchTimestamp": 1721829600,
             "externalGasPatchTimestamp": 1727712000,
+            "bite2PatchTimestamp": 1735689600,
+            "singleStateCommitPerBlockPatchTimestamp": 1735689600,
+            "contractCreationReadOnlyPatchTimestamp": 1735689600,
+            "currentBlockRandomPatchTimestamp": 1735689600,
             "emptyBlockIntervalMs": 1000
         }
     }
