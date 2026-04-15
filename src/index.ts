@@ -23,3 +23,4 @@
 
 export * from './core/bite';
 export { type Transaction } from './core/encrypt';
+export { bytesToHex, concatBytes, hexToBytes } from './utils/bytes';

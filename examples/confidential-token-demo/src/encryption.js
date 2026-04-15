@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { BITE } from '@skalenetwork/bite';
+import { BITE, bytesToHex, concatBytes, hexToBytes } from '@skalenetwork/bite';
 import crypto from 'crypto';
 
 export async function encryptTokenTransfer(rpcUrl, provider, tokenAddress, recipient, amount) {
@@ -39,16 +39,16 @@ export function decryptBalance(secretKey, encryptedDataHex) {
     const cleanSecretKey = secretKey.startsWith('0x') ? secretKey.slice(2) : secretKey;
     const cleanEncryptedData = encryptedDataHex.startsWith('0x') ? encryptedDataHex.slice(2) : encryptedDataHex;
 
-    const encryptedDataBuffer = Buffer.from(cleanEncryptedData, 'hex');
+    const encryptedDataBytes = hexToBytes(cleanEncryptedData);
 
     // Extract parts
-    const iv = encryptedDataBuffer.subarray(0, 16);
-    const ephemeralPublicKey = encryptedDataBuffer.subarray(16, 16 + 33);
-    const ciphertext = encryptedDataBuffer.subarray(16 + 33);
+    const iv = encryptedDataBytes.subarray(0, 16);
+    const ephemeralPublicKey = encryptedDataBytes.subarray(16, 16 + 33);
+    const ciphertext = encryptedDataBytes.subarray(16 + 33);
 
     // Derive Shared Secret
     const ecdh = crypto.createECDH('secp256k1');
-    ecdh.setPrivateKey(Buffer.from(cleanSecretKey, 'hex'));
+    ecdh.setPrivateKey(hexToBytes(cleanSecretKey));
     
     // computeSecret requires the other party's public key
     const sharedSecret = ecdh.computeSecret(ephemeralPublicKey);
@@ -61,17 +61,17 @@ export function decryptBalance(secretKey, encryptedDataHex) {
     // Decrypt: AES-256-CBC with PKCS7 unpadding (default for createDecipheriv)
     const decipher = crypto.createDecipheriv('aes-256-cbc', encryptionKey, iv);
     let decrypted = decipher.update(ciphertext);
-    decrypted = Buffer.concat([decrypted, decipher.final()]);
+    decrypted = concatBytes(decrypted, decipher.final());
 
     // If the plaintext was stored as a *textual* hex string (e.g. "0x..."), UTF-8 decoding is correct.
     // If it was stored as raw bytes, represent it as hex instead.
-    let decryptedString = decrypted.toString('utf8');
+    let decryptedString = new TextDecoder().decode(decrypted);
 
     const maybeHex = decryptedString.startsWith('0x') ? decryptedString.slice(2) : decryptedString;
     const looksLikeHex = /^[0-9a-fA-F]*$/.test(maybeHex) && maybeHex.length % 2 === 0;
 
     if (!looksLikeHex) {
-        decryptedString = `0x${decrypted.toString('hex')}`;
+        decryptedString = `0x${bytesToHex(decrypted)}`;
     }
 
     // Convert hex string to decimal if applicable

@@ -30,6 +30,7 @@ import { encode } from '@ethereumjs/rlp';
 import {logger} from "../utils/logger";
 import * as utils from '../utils/helper';
 import * as constants from '../utils/constants';
+import { bytesToHex, hexToBytes } from '../utils/bytes';
 
 
 export interface Transaction {
@@ -152,14 +153,14 @@ export async function encryptMessage(
             const encryptedRawMessage = await encryptRawMessage(data, publicKeyResponse.commonBLSPublicKey, sanitizedAADTE, sanitizedAADAES);
 
             // RLP encode epochID and encrypted message
-            const rlpEncodedResult = rlpEncodeMessageData([publicKeyResponse.epochId, Buffer.from(encryptedRawMessage, 'hex')]);
+            const rlpEncodedResult = rlpEncodeMessageData([publicKeyResponse.epochId, hexToBytes(encryptedRawMessage)]);
             return `0x${rlpEncodedResult}`;
         } else {
             const encryptedRawMessage = await encryptRawMessageDualKey(data, committees[0].commonBLSPublicKey,
                 committees[1].commonBLSPublicKey, sanitizedAADTE, sanitizedAADAES);
 
             // RLP encode epochID and encrypted message
-            const rlpEncodedResult = rlpEncodeMessageData([committees[0].epochId, Buffer.from(encryptedRawMessage, 'hex')]);
+            const rlpEncodedResult = rlpEncodeMessageData([committees[0].epochId, hexToBytes(encryptedRawMessage)]);
             return `0x${rlpEncodedResult}`;
         }
     } catch (error) {
@@ -188,7 +189,7 @@ export async function encryptMessageMockup(
         const epochId = 0;
 
         // RLP encode epochID and encrypted message
-        const rlpEncodedResult = rlpEncodeMessageData([epochId, Buffer.from(encryptedRawMessage, 'hex')]);
+        const rlpEncodedResult = rlpEncodeMessageData([epochId, hexToBytes(encryptedRawMessage)]);
         return `0x${rlpEncodedResult}`;
     } catch (error) {
         logger.error('Error encrypting message:', error);
@@ -234,15 +235,15 @@ function validateAndExtractTransactionFields(tx: Transaction): Transaction {
  */
 function rlpEncodeTransactionData(txTo: string, txData: string): string {
     try {
-        // Convert hex strings to Buffer for RLP encoding
-        const toBuffer = Buffer.from(txTo, 'hex');
-        const dataBuffer = Buffer.from(txData, 'hex');
+        // Convert hex strings to bytes for RLP encoding
+        const toBytes = hexToBytes(txTo);
+        const dataBytes = hexToBytes(txData);
         
         // RLP encode as array [txData, txTo]
-        const rlpEncoded = encode([dataBuffer, toBuffer]);
+        const rlpEncoded = encode([dataBytes, toBytes]);
         
         // Convert back to hex string without 0x prefix
-        return Buffer.from(rlpEncoded).toString('hex');
+        return bytesToHex(rlpEncoded);
     } catch (error) {
         logger.error('Error RLP encoding transaction data:', error);
         throw new Error('Failed to RLP encode transaction data');
@@ -251,16 +252,16 @@ function rlpEncodeTransactionData(txTo: string, txData: string): string {
 
 /**
  * RLP encodes array of epochId and encrypted message
- * @param {(number | Buffer | (number | Buffer)[])[]} data - Array of data to RLP encode
+ * @param {(number | Uint8Array | (number | Uint8Array)[])[]} data - Array of data to RLP encode
  * @returns {string} RLP encoded data as hex string (without 0x prefix)
  */
-function rlpEncodeMessageData(data: (number | Buffer | (number | Buffer)[])[]): string {
+function rlpEncodeMessageData(data: (number | Uint8Array | (number | Uint8Array)[])[]): string {
     try {
         // RLP encode the array
         const rlpEncoded = encode(data);
         
         // Convert back to hex string without 0x prefix
-        return Buffer.from(rlpEncoded).toString('hex');
+        return bytesToHex(rlpEncoded);
     } catch (error) {
         logger.error('Error RLP encoding message data:', error);
         throw new Error('Failed to RLP encode message data');
