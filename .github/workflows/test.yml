@@ -32,7 +32,7 @@ jobs:
 
       - name: Run sgx container
         run: |
-          export SGX_WALLET_TAG=1.10.1-develop.3
+          export SGX_WALLET_TAG=1.10.2-develop.6
           echo "SGX_WALLET_TAG=$SGX_WALLET_TAG" >> $GITHUB_ENV
           bash ./scripts/run_sgx_container.sh $SGX_WALLET_TAG
           echo "Waiting for SGX wallet to be ready..."
@@ -59,7 +59,7 @@ jobs:
 
       - name: Run skaled container
         run: |
-          export SKALED_RELEASE=5.1.0-develop.7-bite2
+          export SKALED_RELEASE=5.1.0-develop.38-bite2
           echo "SKALED_RELEASE=$SKALED_RELEASE" >> $GITHUB_ENV
         shell: bash
 
