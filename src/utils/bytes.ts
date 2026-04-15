@@ -21,8 +21,11 @@
  * @copyright SKALE Labs 2026-Present
  */
 
+import { validateHexString } from './helper';
+
 export function hexToBytes(hex: string): Uint8Array {
     const sanitizedHex = hex.startsWith('0x') ? hex.slice(2) : hex;
+    validateHexString(sanitizedHex);
     const bytes = new Uint8Array(sanitizedHex.length / 2);
 
     for (let i = 0; i < sanitizedHex.length; i += 2) {
