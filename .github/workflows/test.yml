@@ -20,6 +20,14 @@ jobs:
         with:
           node-version: '18'
 
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Set up Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
       - name: Install dependencies
         run: |
           sudo apt-get install jq
@@ -29,6 +37,20 @@ jobs:
       - name: Run linter
         run: |
           yarn lint
+
+      - name: Run environment smoke tests
+        run: |
+          npm run smoke:web:install
+          npm run smoke:worker:install
+          npm --prefix scripts/env-smoke/web exec playwright install --with-deps chromium
+          npm run smoke:node
+          npm run smoke:node:cjs
+          npm run smoke:web:runtime
+          npm run smoke:web:build
+          npm run smoke:worker:runtime
+          npm run smoke:worker:dry
+          npm run smoke:bun
+          npm run smoke:deno
 
       - name: Run sgx container
         run: |

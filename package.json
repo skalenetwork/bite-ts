@@ -26,7 +26,19 @@
     "clean": "rm -rf dist",
     "lint": "eslint ./src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint ./src --ext .ts --fix",
-    "version": "node -e \"console.log(require('./package.json').version);\""
+    "version": "node -e \"console.log(require('./package.json').version);\"",
+    "smoke:node": "node scripts/env-smoke/node-smoke.mjs",
+    "smoke:node:cjs": "node scripts/env-smoke/node-smoke.cjs",
+    "smoke:web:install": "npm --prefix scripts/env-smoke/web install",
+    "smoke:web:build": "npm --prefix scripts/env-smoke/web run build",
+    "smoke:web:runtime": "npm --prefix scripts/env-smoke/web run runtime",
+    "smoke:web:dev": "npm --prefix scripts/env-smoke/web run dev",
+    "smoke:worker:install": "npm --prefix scripts/env-smoke/worker install",
+    "smoke:worker:dry": "npm --prefix scripts/env-smoke/worker run deploy:dry",
+    "smoke:worker:runtime": "npm --prefix scripts/env-smoke/worker run runtime",
+    "smoke:worker:dev": "npm --prefix scripts/env-smoke/worker run dev",
+    "smoke:bun": "bun scripts/env-smoke/bun-smoke.mjs",
+    "smoke:deno": "deno run --allow-read --allow-env --node-modules-dir=auto scripts/env-smoke/deno-smoke.ts"
   },
   "keywords": [
     "SKALE",

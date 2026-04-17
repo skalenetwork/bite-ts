@@ -1,0 +1,17 @@
+{
+  "name": "bite-env-smoke-worker",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev --port 8788",
+    "deploy:dry": "wrangler deploy --dry-run",
+    "runtime": "node runtime-check.mjs"
+  },
+  "dependencies": {
+    "@skalenetwork/bite": "file:../../.."
+  },
+  "devDependencies": {
+    "wrangler": "^3.99.0"
+  }
+}
