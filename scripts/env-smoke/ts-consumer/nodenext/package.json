@@ -1,0 +1,14 @@
+{
+  "name": "bite-ts-consumer-nodenext",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@skalenetwork/bite": "file:../../../.."
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0"
+  }
+}

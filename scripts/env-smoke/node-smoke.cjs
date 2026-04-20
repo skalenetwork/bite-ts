@@ -1,4 +1,4 @@
-const { BITE } = require('../../dist/index.js');
+const { BITE, bytesToHex, hexToBytes } = require('../../dist/index.js');
 const { decode } = require('@ethereumjs/rlp');
 
 const COMMITTEE_INFO = [
@@ -13,19 +13,61 @@ const SAMPLE_TX = {
     data: '0x1234abcd'
 };
 
+const INVALID_COMMITTEE_INFO = [
+    {
+        commonBLSPublicKey: 'not-a-valid-key',
+        epochId: 777
+    }
+];
+
 function assert(condition, message) {
     if (!condition) {
         throw new Error(message);
     }
 }
 
-function hexToBytes(hex) {
-    const clean = hex.startsWith('0x') ? hex.slice(2) : hex;
-    return Uint8Array.from(Buffer.from(clean, 'hex'));
+async function expectRejects(promiseFactory, pattern, message) {
+    let failed = false;
+
+    try {
+        await promiseFactory();
+    } catch (error) {
+        failed = true;
+        const text = String(error && error.message ? error.message : error);
+        if (!pattern.test(text)) {
+            throw new Error(`${message}. Unexpected error: ${text}`);
+        }
+    }
+
+    if (!failed) {
+        throw new Error(`${message}. Expected operation to throw.`);
+    }
 }
 
-function bytesToHex(bytes) {
-    return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+async function runNegativeChecks() {
+    await expectRejects(
+        () => BITE.encryptTransactionWithCommitteeInfo({ to: SAMPLE_TX.to, data: '0x123' }, COMMITTEE_INFO),
+        /even length/i,
+        'Invalid hex data must be rejected'
+    );
+
+    await expectRejects(
+        () => BITE.encryptTransactionWithCommitteeInfo({ to: '0x1234', data: SAMPLE_TX.data }, COMMITTEE_INFO),
+        /20 bytes|40 hex/i,
+        'Invalid to length must be rejected'
+    );
+
+    await expectRejects(
+        () => BITE.encryptTransactionWithCommitteeInfo(SAMPLE_TX, INVALID_COMMITTEE_INFO),
+        /invalid|factory|module|wrong string size|failed to proceed data/i,
+        'Malformed committee data must be rejected'
+    );
+
+    await expectRejects(
+        () => BITE.encryptTransactionWithCommitteeInfo({}, COMMITTEE_INFO),
+        /data|to|invalid input/i,
+        'Missing transaction fields must be rejected'
+    );
 }
 
 async function main() {
@@ -45,6 +87,8 @@ async function main() {
     assert(epochId === COMMITTEE_INFO[0].epochId, 'Epoch ID mismatch in encrypted payload');
     assert(encryptedRaw instanceof Uint8Array, 'Encrypted payload body must be bytes');
     assert(encryptedRaw.length > 0, 'Encrypted payload body must not be empty');
+
+    await runNegativeChecks();
 
     console.log('PASS node-smoke-cjs');
     console.log(`Encrypted length: ${encryptedTx.data.length - 2} hex chars`);

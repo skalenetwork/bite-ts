@@ -37,8 +37,12 @@
     "smoke:worker:dry": "npm --prefix scripts/env-smoke/worker run deploy:dry",
     "smoke:worker:runtime": "npm --prefix scripts/env-smoke/worker run runtime",
     "smoke:worker:dev": "npm --prefix scripts/env-smoke/worker run dev",
+    "smoke:ts:consumer:nodenext": "npm --prefix scripts/env-smoke/ts-consumer/nodenext run typecheck",
+    "smoke:ts:consumer:bundler": "npm --prefix scripts/env-smoke/ts-consumer/bundler run typecheck",
+    "smoke:ts:consumer": "npm run smoke:ts:consumer:nodenext && npm run smoke:ts:consumer:bundler",
     "smoke:bun": "bun scripts/env-smoke/bun-smoke.mjs",
-    "smoke:deno": "deno run --allow-read --allow-env --node-modules-dir=auto scripts/env-smoke/deno-smoke.ts"
+    "smoke:deno": "deno run --allow-read --allow-env --node-modules-dir=auto scripts/env-smoke/deno-smoke.ts",
+    "smoke:edge:deno": "deno run --allow-read --allow-env --node-modules-dir=auto scripts/env-smoke/deno-edge-smoke.ts"
   },
   "keywords": [
     "SKALE",

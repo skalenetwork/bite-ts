@@ -56,10 +56,10 @@ Build-only validation:
 npm --prefix scripts/env-smoke/web run build
 ```
 
-True runtime validation (headless browser):
+True runtime validation (headless browser in Chromium, Firefox, and WebKit):
 
 ```bash
-npm --prefix scripts/env-smoke/web exec playwright install chromium
+npm --prefix scripts/env-smoke/web exec playwright install chromium firefox webkit
 npm --prefix scripts/env-smoke/web run runtime
 ```
 
@@ -130,7 +130,30 @@ Expected output contains:
 PASS deno-smoke
 ```
 
+### Deno edge profile
+
+```bash
+npm run smoke:edge:deno
+```
+
+Expected output contains:
+
+```text
+PASS deno-edge-smoke
+```
+
+### TypeScript consumer compatibility
+
+```bash
+npm --prefix scripts/env-smoke/ts-consumer/nodenext install
+npm --prefix scripts/env-smoke/ts-consumer/bundler install
+npm run smoke:ts:consumer
+```
+
+Expected output contains successful `tsc --noEmit` runs in both fixture projects.
+
 ## Notes
 
 - If any smoke test fails after updating `@skalenetwork/t-encrypt`, check module resolution and WASM asset loading first.
+- Web runtime stores browser-specific failure logs in `scripts/env-smoke/web/artifacts`.
 - For stricter validation, add these smoke steps to CI for PRs that change package versions or build artifacts.

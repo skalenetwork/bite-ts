@@ -1,6 +1,6 @@
 import { BITE } from '../../dist/index.mjs';
 import { decode } from '@ethereumjs/rlp';
-import { COMMITTEE_INFO, SAMPLE_TX, assert, bytesToHex, hexToBytes } from './shared-fixture.mjs';
+import { COMMITTEE_INFO, SAMPLE_TX, assert, bytesToHex, hexToBytes, runNegativeChecks } from './shared-fixture.mjs';
 
 async function main() {
     const encryptedTx = await BITE.encryptTransactionWithCommitteeInfo(SAMPLE_TX, COMMITTEE_INFO);
@@ -20,6 +20,8 @@ async function main() {
     assert(epochId === COMMITTEE_INFO[0].epochId, 'Epoch ID mismatch in encrypted payload');
     assert(encryptedRaw instanceof Uint8Array, 'Encrypted payload body must be bytes');
     assert(encryptedRaw.length > 0, 'Encrypted payload body must not be empty');
+
+    await runNegativeChecks(BITE);
 
     console.log('PASS node-smoke');
     console.log(`Encrypted length: ${encryptedTx.data.length - 2} hex chars`);

@@ -1,5 +1,6 @@
 import { spawn } from 'node:child_process';
 import process from 'node:process';
+import { fileURLToPath } from 'node:url';
 
 const HOST = '127.0.0.1';
 const PORT = 8788;
@@ -40,7 +41,7 @@ async function waitForWorker(url, timeoutMs = 60000) {
 async function main() {
     const npmCmd = process.platform === 'win32' ? 'npm.cmd' : 'npm';
     const worker = spawn(npmCmd, ['run', 'dev'], {
-        cwd: new URL('.', import.meta.url),
+        cwd: fileURLToPath(new URL('.', import.meta.url)),
         stdio: 'pipe'
     });
 

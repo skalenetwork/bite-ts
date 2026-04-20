@@ -21,4 +21,4 @@ assert(encryptedRaw.length > 0, 'Encrypted payload body must not be empty');
 
 await runNegativeChecks(BITE);
 
-console.log('PASS deno-smoke');
+console.log('PASS deno-edge-smoke');

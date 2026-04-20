@@ -1,32 +1,6 @@
-import { BITE } from '@skalenetwork/bite';
+import { BITE, bytesToHex, hexToBytes } from '@skalenetwork/bite';
 import { decode } from '@ethereumjs/rlp';
-
-const COMMITTEE_INFO = [
-    {
-        commonBLSPublicKey: '2d3846dc859e04cf130cd58a6b73f6f94def67adbec30df6dcfe0d6ab7d8a280173fff75e7afa1eaaf98b18282ae1a832475602f27480120adca88f6c3febc5b2b3a808057137751edbd32f3b6ec003fe120c53b133b0c25f2d050f123fb36ef2f2e6876d111b220ef84a86deb891c45571907e19366d405692f59e46f443d02',
-        epochId: 777
-    }
-];
-
-const SAMPLE_TX = {
-    to: '0x1234567890123456789012345678901234567890',
-    data: '0x1234abcd'
-};
-
-function hexToBytes(hex) {
-    const clean = hex.startsWith('0x') ? hex.slice(2) : hex;
-    const bytes = new Uint8Array(clean.length / 2);
-
-    for (let i = 0; i < clean.length; i += 2) {
-        bytes[i / 2] = parseInt(clean.slice(i, i + 2), 16);
-    }
-
-    return bytes;
-}
-
-function bytesToHex(bytes) {
-    return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
-}
+import { COMMITTEE_INFO, SAMPLE_TX, INVALID_COMMITTEE_INFO } from '../../fixture-data.mjs';
 
 function setStatus(message) {
     const el = document.getElementById('status');
@@ -39,6 +13,50 @@ function assert(condition, message) {
     if (!condition) {
         throw new Error(message);
     }
+}
+
+async function expectRejects(promiseFactory, pattern, message) {
+    let failed = false;
+
+    try {
+        await promiseFactory();
+    } catch (error) {
+        failed = true;
+        const text = String(error?.message ?? error);
+        if (!pattern.test(text)) {
+            throw new Error(`${message}. Unexpected error: ${text}`);
+        }
+    }
+
+    if (!failed) {
+        throw new Error(`${message}. Expected operation to throw.`);
+    }
+}
+
+async function runNegativeChecks() {
+    await expectRejects(
+        () => BITE.encryptTransactionWithCommitteeInfo({ to: SAMPLE_TX.to, data: '0x123' }, COMMITTEE_INFO),
+        /even length/i,
+        'Invalid hex data must be rejected'
+    );
+
+    await expectRejects(
+        () => BITE.encryptTransactionWithCommitteeInfo({ to: '0x1234', data: SAMPLE_TX.data }, COMMITTEE_INFO),
+        /20 bytes|40 hex/i,
+        'Invalid to length must be rejected'
+    );
+
+    await expectRejects(
+        () => BITE.encryptTransactionWithCommitteeInfo(SAMPLE_TX, INVALID_COMMITTEE_INFO),
+        /invalid|factory|module|wrong string size|failed to proceed data/i,
+        'Malformed committee data must be rejected'
+    );
+
+    await expectRejects(
+        () => BITE.encryptTransactionWithCommitteeInfo({}, COMMITTEE_INFO),
+        /data|to|invalid input/i,
+        'Missing transaction fields must be rejected'
+    );
 }
 
 async function run() {
@@ -58,6 +76,8 @@ async function run() {
     assert(epochId === COMMITTEE_INFO[0].epochId, 'Epoch ID mismatch in encrypted payload');
     assert(encryptedRaw instanceof Uint8Array, 'Encrypted payload body must be bytes');
     assert(encryptedRaw.length > 0, 'Encrypted payload body must not be empty');
+
+    await runNegativeChecks();
 
     setStatus(`PASS web-smoke: ${encryptedTx.data.slice(0, 30)}...`);
     console.log('PASS web-smoke', encryptedTx.data);
