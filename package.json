@@ -1,6 +1,6 @@
 {
   "name": "@skalenetwork/bite",
-  "version": "0.8.1",
+  "version": "0.8.2",
   "description": "TS Library to interact with BITE protocol",
   "homepage": "https://github.com/skalenetwork/bite.ts",
   "license": "LGPL-3.0-or-later",
@@ -26,7 +26,23 @@
     "clean": "rm -rf dist",
     "lint": "eslint ./src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint ./src --ext .ts --fix",
-    "version": "node -e \"console.log(require('./package.json').version);\""
+    "version": "node -e \"console.log(require('./package.json').version);\"",
+    "smoke:node": "node scripts/env-smoke/node-smoke.mjs",
+    "smoke:node:cjs": "node scripts/env-smoke/node-smoke.cjs",
+    "smoke:web:install": "npm --prefix scripts/env-smoke/web install",
+    "smoke:web:build": "npm --prefix scripts/env-smoke/web run build",
+    "smoke:web:runtime": "npm --prefix scripts/env-smoke/web run runtime",
+    "smoke:web:dev": "npm --prefix scripts/env-smoke/web run dev",
+    "smoke:worker:install": "npm --prefix scripts/env-smoke/worker install",
+    "smoke:worker:dry": "npm --prefix scripts/env-smoke/worker run deploy:dry",
+    "smoke:worker:runtime": "npm --prefix scripts/env-smoke/worker run runtime",
+    "smoke:worker:dev": "npm --prefix scripts/env-smoke/worker run dev",
+    "smoke:ts:consumer:nodenext": "npm --prefix scripts/env-smoke/ts-consumer/nodenext run typecheck",
+    "smoke:ts:consumer:bundler": "npm --prefix scripts/env-smoke/ts-consumer/bundler run typecheck",
+    "smoke:ts:consumer": "npm run smoke:ts:consumer:nodenext && npm run smoke:ts:consumer:bundler",
+    "smoke:bun": "bun scripts/env-smoke/bun-smoke.mjs",
+    "smoke:deno": "deno run --allow-read --allow-env --node-modules-dir=auto scripts/env-smoke/deno-smoke.ts",
+    "smoke:edge:deno": "deno run --allow-read --allow-env --node-modules-dir=auto scripts/env-smoke/deno-edge-smoke.ts"
   },
   "keywords": [
     "SKALE",

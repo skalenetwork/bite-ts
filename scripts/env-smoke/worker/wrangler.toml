@@ -1,0 +1,5 @@
+name = "bite-env-smoke-worker"
+main = "src/index.js"
+compatibility_date = "2025-07-18"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = true

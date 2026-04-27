@@ -1,14 +1,54 @@
 name: Run Tests
 
 on:
+  pull_request:
   push:
-    branches-ignore:
-      - develop
-      - beta
-      - stable
 
 jobs:
-  test:
+  node-matrix:
+    name: Node Matrix (${{ matrix.os }}, node ${{ matrix.node }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node: ['18', '20']
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn
+
+      - name: Build
+        run: yarn build
+
+      - name: Run linter
+        if: matrix.os == 'ubuntu-latest' && matrix.node == '20'
+        run: yarn lint
+
+      - name: Run node smoke tests
+        run: |
+          npm run smoke:node
+          npm run smoke:node:cjs
+
+      - name: Install TS consumer fixtures
+        run: |
+          npm --prefix scripts/env-smoke/ts-consumer/nodenext install
+          npm --prefix scripts/env-smoke/ts-consumer/bundler install
+
+      - name: Run TS consumer compatibility checks
+        run: npm run smoke:ts:consumer
+
+  web-worker-runtime:
+    name: Web and Worker Runtime
     runs-on: ubuntu-latest
 
     steps:
@@ -16,23 +56,148 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
+          cache: 'yarn'
 
       - name: Install dependencies
         run: |
-          sudo apt-get install jq
+          yarn
+          yarn build
+          npm run smoke:web:install
+          npm run smoke:worker:install
+
+      - name: Install Playwright browsers
+        run: npm --prefix scripts/env-smoke/web exec playwright install --with-deps chromium firefox webkit
+
+      - name: Run web runtime smoke
+        env:
+          SMOKE_BROWSERS: chromium,firefox,webkit
+        run: npm run smoke:web:runtime
+
+      - name: Run worker runtime and dry deploy
+        run: |
+          npm run smoke:worker:runtime
+          npm run smoke:worker:dry
+
+      - name: Upload web smoke artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-runtime-artifacts
+          path: scripts/env-smoke/web/artifacts
+          if-no-files-found: ignore
+
+  edge-runtimes:
+    name: Bun and Deno Runtime
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Set up Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - name: Install dependencies
+        run: |
+          yarn
+          yarn build
+          npm run smoke:bun
+          npm run smoke:deno
+          npm run smoke:edge:deno
+
+  tarball-validation:
+    name: Tarball Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+
+      - name: Build and pack
+        run: |
+          yarn
+          yarn build
+          npm pack --json > pack.json
+
+      - name: Validate tarball file list
+        run: |
+          node -e "const fs=require('node:fs'); const p=JSON.parse(fs.readFileSync('pack.json','utf8')); if(!p[0]||!Array.isArray(p[0].files)) throw new Error('npm pack metadata missing'); const files=p[0].files.map((x)=>x.path); const required=['dist/index.js','dist/index.mjs','dist/index.d.ts']; for (const f of required){ if(!files.includes(f)) throw new Error('Missing file in tarball: '+f);} console.log('PASS tarball file list');"
+
+      - name: Install smoke fixtures
+        run: |
+          npm run smoke:web:install
+          npm run smoke:worker:install
+          npm --prefix scripts/env-smoke/ts-consumer/nodenext install
+          npm --prefix scripts/env-smoke/ts-consumer/bundler install
+
+      - name: Install packed artifact in fixtures
+        run: |
+          TARBALL=$(node -e "const fs=require('node:fs');const p=JSON.parse(fs.readFileSync('pack.json','utf8'));console.log(p[0].filename)")
+          npm --prefix scripts/env-smoke/web install "$GITHUB_WORKSPACE/$TARBALL"
+          npm --prefix scripts/env-smoke/worker install "$GITHUB_WORKSPACE/$TARBALL"
+          npm --prefix scripts/env-smoke/ts-consumer/nodenext install "$GITHUB_WORKSPACE/$TARBALL"
+          npm --prefix scripts/env-smoke/ts-consumer/bundler install "$GITHUB_WORKSPACE/$TARBALL"
+
+      - name: Validate packed artifact in node consumer
+        run: |
+          TARBALL=$(node -e "const fs=require('node:fs');const p=JSON.parse(fs.readFileSync('pack.json','utf8'));console.log(p[0].filename)")
+          TMP_DIR=$(mktemp -d)
+          pushd "$TMP_DIR"
+          npm init -y
+          npm install "$GITHUB_WORKSPACE/$TARBALL"
+          node -e "const m=require('@skalenetwork/bite'); if(!m.BITE) throw new Error('BITE export missing from packed artifact'); console.log('PASS packed artifact consumer check');"
+          popd
+
+      - name: Run tarball-based smoke subset
+        run: |
+          npm run smoke:web:build
+          npm run smoke:worker:dry
+          npm run smoke:ts:consumer
+
+  integration:
+    name: Integration (SGX + skaled)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
           yarn
           yarn build
 
-      - name: Run linter
-        run: |
-          yarn lint
-
       - name: Run sgx container
         run: |
-          export SGX_WALLET_TAG=1.10.1-develop.3
+          export SGX_WALLET_TAG=1.10.2-develop.6
           echo "SGX_WALLET_TAG=$SGX_WALLET_TAG" >> $GITHUB_ENV
           bash ./scripts/run_sgx_container.sh $SGX_WALLET_TAG
           echo "Waiting for SGX wallet to be ready..."
@@ -59,7 +224,7 @@ jobs:
 
       - name: Run skaled container
         run: |
-          export SKALED_RELEASE=5.1.0-develop.7-bite2
+          export SKALED_RELEASE=5.1.0-develop.38-bite
           echo "SKALED_RELEASE=$SKALED_RELEASE" >> $GITHUB_ENV
         shell: bash
 
@@ -123,3 +288,67 @@ jobs:
         with:
           name: skaled-logs
           path: skaled_logs.txt
+
+  release-validation:
+    name: Release Validation
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/stable'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Set up Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - name: Install and build
+        run: |
+          yarn
+          yarn build
+
+      - name: Install fixture dependencies
+        run: |
+          npm run smoke:web:install
+          npm run smoke:worker:install
+          npm --prefix scripts/env-smoke/ts-consumer/nodenext install
+          npm --prefix scripts/env-smoke/ts-consumer/bundler install
+
+      - name: Install Playwright browsers
+        run: npm --prefix scripts/env-smoke/web exec playwright install --with-deps chromium firefox webkit
+
+      - name: Validate packed artifact shape
+        run: |
+          npm pack --json > pack.json
+          node -e "const fs=require('node:fs'); const p=JSON.parse(fs.readFileSync('pack.json','utf8')); const files=(p[0]?.files||[]).map((x)=>x.path); const required=['dist/index.js','dist/index.mjs','dist/index.d.ts']; for (const f of required) { if (!files.includes(f)) throw new Error('Missing file in tarball: '+f); } console.log('PASS tarball shape');"
+
+      - name: Run compatibility suite
+        env:
+          SMOKE_BROWSERS: chromium,firefox,webkit
+        run: |
+          npm run smoke:node
+          npm run smoke:node:cjs
+          npm run smoke:ts:consumer
+          npm run smoke:web:runtime
+          npm run smoke:worker:runtime
+          npm run smoke:bun
+          npm run smoke:deno
+          npm run smoke:edge:deno
+
+      - name: Upload web smoke artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-web-runtime-artifacts
+          path: scripts/env-smoke/web/artifacts
+          if-no-files-found: ignore
